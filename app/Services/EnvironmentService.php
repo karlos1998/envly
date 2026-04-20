@@ -76,20 +76,34 @@ class EnvironmentService
 
     public function regenerateToken(ProjectEnvironment $environment, User $actor): ProjectEnvironment
     {
-        $token = $this->tokens->generate();
+        return DB::transaction(function () use ($environment, $actor): ProjectEnvironment {
+            $token = $this->tokens->generate();
 
-        $environment->update([
-            'access_token' => $token,
-            'access_token_hash' => $this->tokens->hash($token),
-        ]);
+            $environment->update([
+                'access_token' => $token,
+                'access_token_hash' => $this->tokens->hash($token),
+            ]);
 
-        activity()
-            ->causedBy($actor)
-            ->performedOn($environment)
-            ->event('updated')
-            ->log('environment.token_regenerated');
+            $version = $this->createVersion(
+                environment: $environment,
+                previousContent: $environment->content,
+                content: $environment->content,
+                actor: $actor,
+                summary: __('messages.history.token_regenerated'),
+            );
 
-        return $environment->refresh();
+            activity()
+                ->causedBy($actor)
+                ->performedOn($environment)
+                ->event('updated')
+                ->withProperties([
+                    'version_id' => $version->id,
+                    'line_count' => $environment->line_count,
+                ])
+                ->log('environment.token_regenerated');
+
+            return $environment->refresh();
+        });
     }
 
     public function markExported(ProjectEnvironment $environment): void

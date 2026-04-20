@@ -16,6 +16,8 @@ class RegenerateEnvironmentTokenRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'current_password' => ['required', 'current_password'],
+        ];
     }
 }

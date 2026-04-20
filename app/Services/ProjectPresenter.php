@@ -64,6 +64,7 @@ class ProjectPresenter
                     'summary' => $version->summary,
                     'added_lines' => $version->added_lines,
                     'removed_lines' => $version->removed_lines,
+                    'has_content_changes' => $version->previous_content !== $version->content,
                     'content' => $version->content,
                     'previous_content' => $version->previous_content,
                     'created_at' => $version->created_at?->toISOString(),

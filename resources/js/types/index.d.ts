@@ -16,6 +16,7 @@ export interface EnvironmentVersion {
     summary: string | null;
     added_lines: number;
     removed_lines: number;
+    has_content_changes: boolean;
     content: string;
     previous_content: string | null;
     created_at: string | null;
