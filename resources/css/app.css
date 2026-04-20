@@ -3,46 +3,92 @@
 @tailwind utilities;
 
 :root {
-    color: #e6edf3;
-    background: #071017;
+    --envly-background: #071017;
+    --envly-background-mid: #0b141d;
+    --envly-background-end: #09121a;
+    --envly-grid: rgba(89, 243, 183, 0.035);
+    --envly-glow-primary: rgba(89, 243, 183, 0.16);
+    --envly-glow-secondary: rgba(125, 211, 252, 0.12);
+    --envly-text: #e6edf3;
+    --envly-muted: rgba(230, 237, 243, 0.62);
+    --envly-primary: #59f3b7;
+    --envly-primary-hover: #7fffd0;
+    --envly-button-text: #071017;
+    --envly-card-start: rgba(13, 24, 33, 0.94);
+    --envly-card-end: rgba(8, 18, 27, 0.94);
+    --envly-card-border: rgba(89, 243, 183, 0.14);
+    --envly-card-shadow: 0 24px 90px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    --envly-field-bg: #09141d;
+    --envly-field-border: rgba(148, 163, 184, 0.22);
+    --envly-editor-bg: #050b11;
+    --envly-editor-gutter: #071017;
+    color: var(--envly-text);
+    background: var(--envly-background);
     font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, ui-monospace, monospace;
 }
 
+[data-color-scheme='light'] {
+    --envly-background: #f4f7f4;
+    --envly-background-mid: #e9f1eb;
+    --envly-background-end: #dde8e1;
+    --envly-grid: rgba(15, 143, 114, 0.085);
+    --envly-glow-primary: rgba(15, 143, 114, 0.16);
+    --envly-glow-secondary: rgba(9, 111, 159, 0.12);
+    --envly-text: #10202a;
+    --envly-muted: rgba(16, 32, 42, 0.64);
+    --envly-primary: #0f8f72;
+    --envly-primary-hover: #0a705a;
+    --envly-button-text: #ffffff;
+    --envly-card-start: rgba(255, 255, 255, 0.96);
+    --envly-card-end: rgba(242, 247, 243, 0.96);
+    --envly-card-border: rgba(15, 143, 114, 0.18);
+    --envly-card-shadow: 0 24px 80px rgba(16, 32, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --envly-field-bg: #ffffff;
+    --envly-field-border: rgba(16, 32, 42, 0.16);
+    --envly-editor-bg: #0a1117;
+    --envly-editor-gutter: #101820;
+}
+
 html {
-    background: #071017;
+    background: var(--envly-background);
 }
 
 body {
     min-height: 100vh;
     background:
-        linear-gradient(rgba(89, 243, 183, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(89, 243, 183, 0.035) 1px, transparent 1px),
-        radial-gradient(circle at 18% 12%, rgba(89, 243, 183, 0.16), transparent 28rem),
-        radial-gradient(circle at 82% 18%, rgba(125, 211, 252, 0.12), transparent 26rem),
-        linear-gradient(135deg, #071017 0%, #0b141d 54%, #09121a 100%);
+        linear-gradient(var(--envly-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--envly-grid) 1px, transparent 1px),
+        radial-gradient(circle at 18% 12%, var(--envly-glow-primary), transparent 28rem),
+        radial-gradient(circle at 82% 18%, var(--envly-glow-secondary), transparent 26rem),
+        linear-gradient(135deg, var(--envly-background) 0%, var(--envly-background-mid) 54%, var(--envly-background-end) 100%);
     background-size: 42px 42px, 42px 42px, auto, auto, auto;
+}
+
+.v-application {
+    background: transparent !important;
+    color: var(--envly-text) !important;
 }
 
 .env-card,
 .ops-card {
-    background: linear-gradient(180deg, rgba(13, 24, 33, 0.94), rgba(8, 18, 27, 0.94)) !important;
-    border: 1px solid rgba(89, 243, 183, 0.14) !important;
-    box-shadow: 0 24px 90px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+    background: linear-gradient(180deg, var(--envly-card-start), var(--envly-card-end)) !important;
+    border: 1px solid var(--envly-card-border) !important;
+    box-shadow: var(--envly-card-shadow) !important;
 }
 
 .env-editor .cm-editor {
     min-height: 420px;
     border-radius: 14px;
     overflow: hidden;
-    border: 1px solid rgba(89, 243, 183, 0.22);
-    background: #050b11;
+    border: 1px solid color-mix(in srgb, var(--envly-primary) 28%, transparent);
+    background: var(--envly-editor-bg);
     color: #e6edf3;
 }
 
 .env-editor .cm-gutters {
-    background: #071017;
-    color: #59f3b7;
-    border-right: 1px solid rgba(89, 243, 183, 0.14);
+    background: var(--envly-editor-gutter);
+    color: var(--envly-primary);
+    border-right: 1px solid color-mix(in srgb, var(--envly-primary) 16%, transparent);
 }
 
 .env-editor .cm-content {
@@ -54,8 +100,8 @@ body {
 .env-card .v-field,
 .ops-card .v-field {
     min-height: 58px;
-    background: #09141d;
-    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: var(--envly-field-bg);
+    border: 1px solid var(--envly-field-border);
     border-radius: 14px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
@@ -63,14 +109,14 @@ body {
 .auth-card .v-field:hover,
 .env-card .v-field:hover,
 .ops-card .v-field:hover {
-    border-color: rgba(89, 243, 183, 0.38);
+    border-color: color-mix(in srgb, var(--envly-primary) 44%, transparent);
 }
 
 .auth-card .v-field--focused,
 .env-card .v-field--focused,
 .ops-card .v-field--focused {
-    border-color: #59f3b7;
-    box-shadow: 0 0 0 4px rgba(89, 243, 183, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    border-color: var(--envly-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--envly-primary) 12%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .auth-card .v-field__outline,
@@ -90,27 +136,27 @@ body {
 .env-card .v-btn[type='submit'],
 .ops-card .v-btn[type='submit'] {
     min-height: 54px;
-    background: #59f3b7 !important;
-    color: #071017 !important;
+    background: var(--envly-primary) !important;
+    color: var(--envly-button-text) !important;
     font-weight: 900;
     letter-spacing: -0.03em;
-    box-shadow: 0 18px 42px rgba(89, 243, 183, 0.2);
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--envly-primary) 22%, transparent);
 }
 
 .auth-card .v-btn[type='submit']:hover,
 .env-card .v-btn[type='submit']:hover,
 .ops-card .v-btn[type='submit']:hover {
-    background: #7fffd0 !important;
+    background: var(--envly-primary-hover) !important;
 }
 
 .auth-card .v-selection-control,
 .env-card .v-selection-control,
 .ops-card .v-selection-control {
-    color: rgba(230, 237, 243, 0.78);
+    color: var(--envly-muted);
 }
 
 .ops-kicker {
-    color: #59f3b7;
+    color: var(--envly-primary);
     font-size: 12px;
     font-weight: 900;
     letter-spacing: 0.18em;
@@ -118,5 +164,5 @@ body {
 }
 
 .ops-muted {
-    color: rgba(230, 237, 243, 0.62);
+    color: var(--envly-muted);
 }

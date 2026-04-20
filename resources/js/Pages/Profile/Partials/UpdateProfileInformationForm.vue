@@ -25,9 +25,11 @@ const form = useForm({
 
 <template>
     <section>
-        <h2 class="text-h5 font-weight-black mb-2">{{ t('nav.profile') }}</h2>
+        <div class="ops-kicker mb-2">{{ t('profile.account') }}</div>
+        <h2 class="text-h5 font-weight-black mb-2">{{ t('profile.account') }}</h2>
+        <p class="ops-muted mb-6">{{ t('profile.account_hint') }}</p>
 
-        <form class="d-flex flex-column ga-3 mt-6" @submit.prevent="form.patch(route('profile.update'))">
+        <form class="d-flex flex-column ga-3" @submit.prevent="form.patch(route('profile.update'))">
             <v-text-field v-model="form.name" :label="t('auth.name')" :error-messages="form.errors.name" variant="outlined" />
             <v-text-field v-model="form.email" :label="t('auth.email')" :error-messages="form.errors.email" type="email" variant="outlined" />
             <v-select
@@ -41,23 +43,23 @@ const form = useForm({
             />
 
             <div v-if="props.mustVerifyEmail && user.email_verified_at === null">
-                <p class="text-body-2">
-                    Your email address is unverified.
+                <p class="ops-muted text-body-2">
+                    {{ t('profile.email_unverified') }}
                     <Link :href="route('verification.send')" method="post" as="button" class="text-primary">
-                        Click here to re-send the verification email.
+                        {{ t('profile.resend_verification') }}
                     </Link>
                 </p>
 
                 <v-alert v-if="props.status === 'verification-link-sent'" class="mt-3" color="success" variant="tonal">
-                    A new verification link has been sent to your email address.
+                    {{ t('profile.verification_sent') }}
                 </v-alert>
             </div>
 
             <div class="d-flex align-center ga-4">
                 <v-btn type="submit" color="primary" rounded="xl" :loading="form.processing">
-                    Save
+                    {{ t('profile.save') }}
                 </v-btn>
-                <span v-if="form.recentlySuccessful" class="text-medium-emphasis">Saved.</span>
+                <span v-if="form.recentlySuccessful" class="ops-muted text-caption">{{ t('profile.saved') }}</span>
             </div>
         </form>
     </section>

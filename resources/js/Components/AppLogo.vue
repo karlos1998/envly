@@ -27,7 +27,7 @@ defineProps<{
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    color: #e7fff7;
+    color: var(--envly-text);
     font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
     font-size: 22px;
     font-weight: 900;
@@ -46,7 +46,7 @@ defineProps<{
 }
 
 .app-logo__shell {
-    fill: #08131a;
+    fill: var(--envly-background);
     stroke: url(#envly-mark);
     stroke-width: 1.8;
 }

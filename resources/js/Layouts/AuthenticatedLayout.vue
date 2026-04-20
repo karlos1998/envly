@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLogo from '@/Components/AppLogo.vue';
+import ThemeModeSwitch from '@/Components/ThemeModeSwitch.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import type { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/vue3';
@@ -14,7 +15,7 @@ const logout = () => router.post(route('logout'));
 
 <template>
     <v-app>
-        <v-app-bar flat color="rgba(7, 16, 23, 0.88)" class="ops-app-bar px-4">
+        <v-app-bar flat color="transparent" class="ops-app-bar px-4">
             <Link :href="route('projects.index')" class="brand-link">
                 <AppLogo />
             </Link>
@@ -27,6 +28,7 @@ const logout = () => router.post(route('logout'));
             <v-btn :href="route('profile.edit')" variant="text" color="secondary">
                 {{ user?.name }}
             </v-btn>
+            <ThemeModeSwitch />
             <v-btn icon="mdi-logout" variant="text" color="primary" @click="logout" />
         </v-app-bar>
 
@@ -51,6 +53,7 @@ const logout = () => router.post(route('logout'));
 <style scoped>
 .ops-app-bar {
     border-bottom: 1px solid rgba(89, 243, 183, 0.12);
+    background: color-mix(in srgb, var(--envly-background) 88%, transparent) !important;
     backdrop-filter: blur(18px);
 }
 

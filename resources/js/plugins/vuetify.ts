@@ -5,6 +5,7 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { aliases, mdi } from 'vuetify/iconsets/mdi';
+import { getInitialVuetifyTheme } from '@/composables/useThemePreference';
 
 export const vuetify = createVuetify({
     components,
@@ -36,9 +37,9 @@ export const vuetify = createVuetify({
         },
     },
     theme: {
-        defaultTheme: 'envlyOps',
+        defaultTheme: getInitialVuetifyTheme(),
         themes: {
-            envlyOps: {
+            envlyOpsDark: {
                 dark: true,
                 colors: {
                     background: '#071017',
@@ -50,6 +51,20 @@ export const vuetify = createVuetify({
                     info: '#7dd3fc',
                     success: '#59f3b7',
                     warning: '#f6c177',
+                },
+            },
+            envlyOpsLight: {
+                dark: false,
+                colors: {
+                    background: '#f4f7f4',
+                    surface: '#ffffff',
+                    primary: '#0f8f72',
+                    secondary: '#096f9f',
+                    accent: '#b76e00',
+                    error: '#c93636',
+                    info: '#096f9f',
+                    success: '#0f8f72',
+                    warning: '#b76e00',
                 },
             },
         },

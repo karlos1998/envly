@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLogo from '@/Components/AppLogo.vue';
+import ThemeModeSwitch from '@/Components/ThemeModeSwitch.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import type { PageProps } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
@@ -19,13 +20,16 @@ const canLogin = computed(() => !page.props.auth.user);
                         <AppLogo />
                     </Link>
 
-                    <div v-if="canLogin" class="d-flex ga-2">
-                        <v-btn :href="route('login')" variant="text" color="primary">
-                            {{ t('nav.login') }}
-                        </v-btn>
-                        <v-btn :href="route('register')" color="primary" variant="flat">
-                            {{ t('nav.register') }}
-                        </v-btn>
+                    <div class="d-flex align-center ga-2">
+                        <ThemeModeSwitch />
+                        <template v-if="canLogin">
+                            <v-btn :href="route('login')" variant="text" color="primary">
+                                {{ t('nav.login') }}
+                            </v-btn>
+                            <v-btn :href="route('register')" color="primary" variant="flat">
+                                {{ t('nav.register') }}
+                            </v-btn>
+                        </template>
                     </div>
                 </header>
 
@@ -101,17 +105,17 @@ const canLogin = computed(() => !page.props.auth.user);
     flex-direction: column;
     justify-content: center;
     background:
-        linear-gradient(135deg, rgba(13, 24, 33, 0.92), rgba(6, 14, 22, 0.96)),
-        radial-gradient(circle at 70% 20%, rgba(89, 243, 183, 0.13), transparent 18rem);
-    border: 1px solid rgba(89, 243, 183, 0.16);
-    box-shadow: 0 32px 110px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        linear-gradient(135deg, var(--envly-card-start), var(--envly-card-end)),
+        radial-gradient(circle at 70% 20%, color-mix(in srgb, var(--envly-primary) 14%, transparent), transparent 18rem);
+    border: 1px solid color-mix(in srgb, var(--envly-primary) 18%, transparent);
+    box-shadow: var(--envly-card-shadow);
 }
 
 .hero-panel::before {
     content: '';
     position: absolute;
     inset: 0;
-    background-image: linear-gradient(rgba(89, 243, 183, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(89, 243, 183, 0.045) 1px, transparent 1px);
+    background-image: linear-gradient(var(--envly-grid) 1px, transparent 1px), linear-gradient(90deg, var(--envly-grid) 1px, transparent 1px);
     background-size: 28px 28px;
     mask-image: linear-gradient(90deg, black, transparent 74%);
     pointer-events: none;
@@ -126,9 +130,9 @@ const canLogin = computed(() => !page.props.auth.user);
     align-items: center;
     gap: 10px;
     padding: 10px 14px;
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    border: 1px solid color-mix(in srgb, var(--envly-primary) 18%, transparent);
     border-radius: 12px;
-    color: rgba(230, 237, 243, 0.56);
+    color: var(--envly-muted);
     font-size: 12px;
 }
 
@@ -136,13 +140,13 @@ const canLogin = computed(() => !page.props.auth.user);
     width: 8px;
     height: 8px;
     border-radius: 999px;
-    background: #59f3b7;
-    box-shadow: 0 0 22px rgba(89, 243, 183, 0.9);
+    background: var(--envly-primary);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--envly-primary) 72%, transparent);
 }
 
 .hero-title {
     position: relative;
-    color: #f4f7fb;
+    color: var(--envly-text);
     font-size: clamp(40px, 5.4vw, 74px);
     line-height: 0.98;
     letter-spacing: -0.075em;
@@ -152,7 +156,7 @@ const canLogin = computed(() => !page.props.auth.user);
 
 .hero-copy {
     position: relative;
-    color: rgba(230, 237, 243, 0.68);
+    color: var(--envly-muted);
     font-size: 16px;
     line-height: 1.75;
     max-width: 560px;
@@ -167,18 +171,18 @@ const canLogin = computed(() => !page.props.auth.user);
     max-width: 430px;
     margin-top: 34px;
     padding: 18px;
-    border: 1px solid rgba(89, 243, 183, 0.18);
+    border: 1px solid color-mix(in srgb, var(--envly-primary) 18%, transparent);
     border-radius: 16px;
-    background: rgba(5, 11, 17, 0.62);
+    background: color-mix(in srgb, var(--envly-background) 70%, transparent);
 }
 
 .signal-grid span {
-    color: rgba(148, 163, 184, 0.78);
+    color: var(--envly-muted);
     font-size: 12px;
 }
 
 .signal-grid strong {
-    color: #59f3b7;
+    color: var(--envly-primary);
     font-size: 12px;
     text-align: right;
 }
