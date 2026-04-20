@@ -1,0 +1,31 @@
+<script setup lang="ts">
+import { useTranslations } from '@/composables/useTranslations';
+import GuestLayout from '@/Layouts/GuestLayout.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+
+defineProps<{ canResetPassword?: boolean; status?: string }>();
+const { t } = useTranslations();
+
+const form = useForm({ email: '', password: '', remember: false });
+const submit = () => form.post(route('login'), { onFinish: () => form.reset('password') });
+</script>
+
+<template>
+    <GuestLayout>
+        <Head :title="t('auth.login')" />
+
+        <v-alert v-if="status" class="mb-4" color="success" variant="tonal">{{ status }}</v-alert>
+
+        <form class="d-flex flex-column ga-3" @submit.prevent="submit">
+            <v-text-field v-model="form.email" :label="t('auth.email')" :error-messages="form.errors.email" type="email" variant="outlined" />
+            <v-text-field v-model="form.password" :label="t('auth.password')" :error-messages="form.errors.password" type="password" variant="outlined" />
+            <v-checkbox v-model="form.remember" :label="t('auth.remember')" color="primary" />
+            <v-btn type="submit" color="primary" size="large" rounded="xl" :loading="form.processing" block>
+                {{ t('auth.login') }}
+            </v-btn>
+            <Link v-if="canResetPassword" :href="route('password.request')" class="text-center text-primary">
+                Forgot password?
+            </Link>
+        </form>
+    </GuestLayout>
+</template>

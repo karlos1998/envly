@@ -1,11 +1,42 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+:root {
+    color: #172a3a;
+    background: #f6f3ea;
+    font-family: Satoshi, Avenir Next, ui-sans-serif, system-ui, sans-serif;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 12% 8%, rgba(200, 107, 60, 0.2), transparent 28rem),
+        radial-gradient(circle at 88% 5%, rgba(34, 92, 77, 0.18), transparent 24rem),
+        linear-gradient(135deg, #f6f3ea 0%, #efe5cf 100%);
+}
+
+.env-card {
+    border: 1px solid rgba(23, 42, 58, 0.08);
+    box-shadow: 0 24px 80px rgba(23, 42, 58, 0.12);
+}
+
+.env-editor .cm-editor {
+    min-height: 420px;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(23, 42, 58, 0.12);
+    background: #101820;
+    color: #f8f0db;
+}
+
+.env-editor .cm-gutters {
+    background: #0c131a;
+    color: #d9b778;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.env-editor .cm-content {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 14px;
 }
