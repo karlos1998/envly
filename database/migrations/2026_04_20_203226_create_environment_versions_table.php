@@ -1,0 +1,30 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('environment_versions', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignId('project_environment_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('created_by_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->longText('previous_content')->nullable();
+            $table->longText('content');
+            $table->unsignedInteger('added_lines')->default(0);
+            $table->unsignedInteger('removed_lines')->default(0);
+            $table->string('summary')->nullable();
+            $table->timestamps();
+
+            $table->index(['project_environment_id', 'created_at']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('environment_versions');
+    }
+};
