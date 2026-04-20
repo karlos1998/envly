@@ -2,13 +2,34 @@ import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
 
 import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
 import { aliases, mdi } from 'vuetify/iconsets/mdi';
 
 export const vuetify = createVuetify({
+    components,
+    directives,
     icons: {
         defaultSet: 'mdi',
         aliases,
         sets: { mdi },
+    },
+    defaults: {
+        VTextField: {
+            color: 'primary',
+            rounded: 'lg',
+        },
+        VSelect: {
+            color: 'primary',
+            rounded: 'lg',
+        },
+        VBtn: {
+            rounded: 'lg',
+            textTransform: 'none',
+        },
+        VCard: {
+            elevation: 0,
+        },
     },
     theme: {
         defaultTheme: 'envlyLight',
