@@ -54,7 +54,13 @@ return [
     'projects' => [
         'title' => 'Projekty',
         'new' => 'Nowy projekt',
+        'list' => 'Lista projektów',
+        'list_hint' => 'Wybierz projekt, żeby edytować jego środowiska, tokeny i historię zmian.',
         'empty' => 'Utwórz pierwszy projekt, a Envly automatycznie doda środowisko main.',
+        'empty_search' => 'Nie znaleziono projektów pasujących do tego wyszukiwania.',
+        'search' => 'Szukaj projektów',
+        'search_placeholder' => 'Nazwa albo identyfikator',
+        'clear_search' => 'Wyczyść',
         'name' => 'Nazwa projektu',
         'identifier' => 'Identyfikator',
         'create' => 'Utwórz projekt',

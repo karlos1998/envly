@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Project\SearchProjectsRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
@@ -20,10 +21,15 @@ class ProjectController extends Controller
         private ProjectPresenter $presenter,
     ) {}
 
-    public function index(): Response
+    public function index(SearchProjectsRequest $request): Response
     {
+        $search = $request->searchTerm();
+
         return Inertia::render('Projects/Index', [
-            'projects' => $this->presenter->projects($this->projects->forUser(request()->user())),
+            'filters' => [
+                'search' => $search ?? '',
+            ],
+            'projects' => $this->presenter->projects($this->projects->forUser($request->user(), $search)),
         ]);
     }
 

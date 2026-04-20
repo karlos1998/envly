@@ -1,14 +1,35 @@
 <script setup lang="ts">
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
 import { useTranslations } from '@/composables/useTranslations';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { Project } from '@/types';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
-const props = defineProps<{ projects: Project[] }>();
+const props = defineProps<{
+    filters: {
+        search: string;
+    };
+    projects: Project[];
+}>();
+
 const { t } = useTranslations();
-
+const search = ref(props.filters.search);
 const form = useForm({ name: '' });
+
 const submit = () => form.post(route('projects.store'), { onSuccess: () => form.reset() });
+
+const searchProjects = () => {
+    router.get(
+        route('projects.index'),
+        { search: search.value || undefined },
+        { preserveState: true, preserveScroll: true, replace: true },
+    );
+};
+
+const clearSearch = () => {
+    search.value = '';
+    searchProjects();
+};
 </script>
 
 <template>
@@ -37,24 +58,95 @@ const submit = () => form.post(route('projects.store'), { onSuccess: () => form.
             </v-col>
 
             <v-col cols="12" md="7">
-                <v-card v-if="props.projects.length === 0" class="pa-8" rounded="xl" variant="tonal">
-                    {{ t('projects.empty') }}
-                </v-card>
-
-                <div v-else class="d-flex flex-column ga-4">
-                    <v-card v-for="project in props.projects" :key="project.id" class="pa-5" rounded="xl">
-                        <div class="d-flex align-center justify-space-between ga-4">
-                            <div>
-                                <h2 class="text-h5 font-weight-black">{{ project.name }}</h2>
-                                <div class="text-medium-emphasis">{{ t('projects.identifier') }}: {{ project.identifier }}</div>
-                            </div>
-                            <v-btn :href="route('projects.show', project.identifier)" color="primary" rounded="xl">
-                                {{ t('projects.open') }}
-                            </v-btn>
+                <v-card class="env-card project-list-shell pa-6" rounded="xl">
+                    <div class="project-list-header">
+                        <div>
+                            <div class="ops-kicker mb-2">{{ t('projects.list') }}</div>
+                            <h2 class="text-h4 font-weight-black mb-2">{{ t('projects.list') }}</h2>
+                            <p class="ops-muted mb-0">{{ t('projects.list_hint') }}</p>
                         </div>
+
+                        <form class="project-search" @submit.prevent="searchProjects">
+                            <v-text-field
+                                v-model="search"
+                                :placeholder="t('projects.search_placeholder')"
+                                :aria-label="t('projects.search')"
+                                append-inner-icon="mdi-magnify"
+                                hide-details
+                                variant="outlined"
+                            />
+                            <v-btn type="submit" color="primary" rounded="lg">
+                                {{ t('projects.search') }}
+                            </v-btn>
+                            <v-btn v-if="search" variant="text" color="secondary" rounded="lg" @click="clearSearch">
+                                {{ t('projects.clear_search') }}
+                            </v-btn>
+                        </form>
+                    </div>
+
+                    <v-card v-if="props.projects.length === 0" class="empty-projects pa-6 mt-6" rounded="lg" variant="tonal">
+                        {{ props.filters.search ? t('projects.empty_search') : t('projects.empty') }}
                     </v-card>
-                </div>
+
+                    <div v-else class="d-flex flex-column ga-4 mt-6">
+                        <v-card v-for="project in props.projects" :key="project.id" class="project-card pa-5" rounded="lg">
+                            <div class="d-flex align-center justify-space-between ga-4 flex-wrap">
+                                <div>
+                                    <h3 class="text-h5 font-weight-black">{{ project.name }}</h3>
+                                    <div class="ops-muted">{{ t('projects.identifier') }}: {{ project.identifier }}</div>
+                                </div>
+                                <v-btn :href="route('projects.show', project.identifier)" color="primary" rounded="lg" variant="flat">
+                                    {{ t('projects.open') }}
+                                </v-btn>
+                            </div>
+                        </v-card>
+                    </div>
+                </v-card>
             </v-col>
         </v-row>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.project-list-shell {
+    min-height: 370px;
+}
+
+.project-list-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 390px);
+    gap: 24px;
+    align-items: start;
+}
+
+.project-search {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+}
+
+.project-search .v-btn:last-child {
+    grid-column: 1 / -1;
+    justify-self: end;
+}
+
+.project-card,
+.empty-projects {
+    background: color-mix(in srgb, var(--envly-background) 62%, transparent) !important;
+    border: 1px solid color-mix(in srgb, var(--envly-primary) 12%, transparent) !important;
+}
+
+@media (max-width: 980px) {
+    .project-list-header {
+        grid-template-columns: 1fr;
+    }
+
+    .project-search {
+        grid-template-columns: 1fr;
+    }
+
+    .project-search .v-btn:last-child {
+        justify-self: stretch;
+    }
+}
+</style>

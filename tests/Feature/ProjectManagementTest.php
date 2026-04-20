@@ -4,6 +4,7 @@ use App\Models\EnvironmentVersion;
 use App\Models\Project;
 use App\Models\ProjectEnvironment;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia as Assert;
 
 it('creates a project with a globally unique identifier and main environment', function () {
     Project::factory()->create(['identifier' => 'moj-projekt']);
@@ -17,6 +18,34 @@ it('creates a project with a globally unique identifier and main environment', f
 
     expect($project->identifier)->toBe('moj-projekt-2')
         ->and($project->environments()->where('slug', 'main')->exists())->toBeTrue();
+});
+
+it('searches owned projects by name or identifier', function () {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+
+    Project::factory()->for($user)->create([
+        'name' => 'Billing API',
+        'identifier' => 'billing-api',
+    ]);
+    Project::factory()->for($user)->create([
+        'name' => 'Marketing Site',
+        'identifier' => 'marketing-site',
+    ]);
+    Project::factory()->for($otherUser)->create([
+        'name' => 'Billing API Clone',
+        'identifier' => 'billing-api-clone',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('projects.index', ['search' => 'bill']))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Projects/Index')
+            ->where('filters.search', 'bill')
+            ->where('projects.0.name', 'Billing API')
+            ->missing('projects.1')
+        );
 });
 
 it('stores a new environment version when content changes', function () {

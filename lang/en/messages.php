@@ -54,7 +54,13 @@ return [
     'projects' => [
         'title' => 'Projects',
         'new' => 'New project',
+        'list' => 'Project list',
+        'list_hint' => 'Choose a project to edit its environments, tokens, and change history.',
         'empty' => 'Create your first project and Envly will add a main environment automatically.',
+        'empty_search' => 'No projects match this search.',
+        'search' => 'Search projects',
+        'search_placeholder' => 'Name or identifier',
+        'clear_search' => 'Clear',
         'name' => 'Project name',
         'identifier' => 'Identifier',
         'create' => 'Create project',
