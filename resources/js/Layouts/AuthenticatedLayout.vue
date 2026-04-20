@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import AppLogo from '@/Components/AppLogo.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import type { PageProps } from '@/types';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const page = usePage<PageProps>();
 const { t } = useTranslations();
@@ -13,10 +14,9 @@ const logout = () => router.post(route('logout'));
 
 <template>
     <v-app>
-        <v-app-bar flat color="transparent" class="px-4">
+        <v-app-bar flat color="rgba(7, 16, 23, 0.88)" class="ops-app-bar px-4">
             <Link :href="route('projects.index')" class="brand-link">
-                <span class="brand-mark">E</span>
-                <span>{{ t('app.name') }}</span>
+                <AppLogo />
             </Link>
 
             <v-spacer />
@@ -24,13 +24,13 @@ const logout = () => router.post(route('logout'));
             <v-btn :href="route('projects.index')" variant="text" color="primary">
                 {{ t('nav.projects') }}
             </v-btn>
-            <v-btn :href="route('profile.edit')" variant="text" color="primary">
+            <v-btn :href="route('profile.edit')" variant="text" color="secondary">
                 {{ user?.name }}
             </v-btn>
             <v-btn icon="mdi-logout" variant="text" color="primary" @click="logout" />
         </v-app-bar>
 
-        <v-main>
+        <v-main class="ops-main">
             <v-container class="py-8" max-width="1320">
                 <v-alert
                     v-if="page.props.flash.success"
@@ -49,24 +49,16 @@ const logout = () => router.post(route('logout'));
 </template>
 
 <style scoped>
-.brand-link {
-    color: #172a3a;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 900;
-    text-decoration: none;
-    font-size: 22px;
-    letter-spacing: -0.05em;
+.ops-app-bar {
+    border-bottom: 1px solid rgba(89, 243, 183, 0.12);
+    backdrop-filter: blur(18px);
 }
 
-.brand-mark {
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 14px;
-    background: #225c4d;
-    color: #fffaf0;
+.ops-main {
+    min-height: 100vh;
+}
+
+.brand-link {
+    text-decoration: none;
 }
 </style>

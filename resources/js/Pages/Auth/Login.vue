@@ -15,8 +15,9 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
         <Head :title="t('auth.login')" />
 
         <div class="mb-8">
-            <div class="text-overline text-secondary font-weight-bold">Welcome back</div>
+            <div class="ops-kicker mb-2">AUTH / SESSION</div>
             <h2 class="text-h4 font-weight-black">{{ t('auth.login') }}</h2>
+            <p class="ops-muted mt-2 mb-0">Sign in to manage project environments.</p>
         </div>
 
         <v-alert v-if="status" class="mb-4" color="success" variant="tonal">{{ status }}</v-alert>
@@ -39,7 +40,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
                 prepend-inner-icon="mdi-lock-outline"
             />
             <v-checkbox v-model="form.remember" :label="t('auth.remember')" color="primary" density="compact" hide-details />
-            <v-btn type="submit" color="primary" size="large" rounded="xl" :loading="form.processing" block>
+            <v-btn type="submit" color="primary" size="large" :loading="form.processing" block>
                 {{ t('auth.login') }}
             </v-btn>
             <Link v-if="canResetPassword" :href="route('password.request')" class="text-center text-primary text-decoration-none">

@@ -19,6 +19,10 @@ export const vuetify = createVuetify({
             color: 'primary',
             rounded: 'lg',
         },
+        VTextarea: {
+            color: 'primary',
+            rounded: 'lg',
+        },
         VSelect: {
             color: 'primary',
             rounded: 'lg',
@@ -32,20 +36,20 @@ export const vuetify = createVuetify({
         },
     },
     theme: {
-        defaultTheme: 'envlyLight',
+        defaultTheme: 'envlyOps',
         themes: {
-            envlyLight: {
-                dark: false,
+            envlyOps: {
+                dark: true,
                 colors: {
-                    background: '#f6f3ea',
-                    surface: '#fffaf0',
-                    primary: '#225c4d',
-                    secondary: '#c86b3c',
-                    accent: '#172a3a',
-                    error: '#b42318',
-                    info: '#2563eb',
-                    success: '#287a4b',
-                    warning: '#c77700',
+                    background: '#071017',
+                    surface: '#0d1821',
+                    primary: '#59f3b7',
+                    secondary: '#7dd3fc',
+                    accent: '#f6c177',
+                    error: '#ff6b6b',
+                    info: '#7dd3fc',
+                    success: '#59f3b7',
+                    warning: '#f6c177',
                 },
             },
         },
