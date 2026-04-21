@@ -179,22 +179,24 @@ body {
 .ops-card .v-btn.bg-primary,
 .auth-card .v-btn.bg-secondary,
 .env-card .v-btn.bg-secondary,
-.ops-card .v-btn.bg-secondary,
-.auth-card .v-btn.text-primary,
-.env-card .v-btn.text-primary,
-.ops-card .v-btn.text-primary,
-.auth-card .v-btn.text-secondary,
-.env-card .v-btn.text-secondary,
-.ops-card .v-btn.text-secondary {
+.ops-card .v-btn.bg-secondary {
     color: var(--envly-button-text) !important;
 }
 
-.auth-card .v-btn.text-primary .v-icon,
-.env-card .v-btn.text-primary .v-icon,
-.ops-card .v-btn.text-primary .v-icon,
-.auth-card .v-btn.text-secondary .v-icon,
-.env-card .v-btn.text-secondary .v-icon,
-.ops-card .v-btn.text-secondary .v-icon {
+.env-action-btn.v-btn {
+    background: var(--envly-primary) !important;
+    color: var(--envly-button-text) !important;
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--envly-primary) 22%, transparent) !important;
+    font-weight: 900;
+}
+
+.env-action-btn.v-btn:hover {
+    background: var(--envly-primary-hover) !important;
+}
+
+.env-action-btn.v-btn .v-icon,
+.env-action-btn.v-btn .v-btn__content,
+.env-action-btn.v-btn .v-btn__prepend {
     color: var(--envly-button-text) !important;
 }
 

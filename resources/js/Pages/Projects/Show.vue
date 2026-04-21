@@ -200,7 +200,7 @@ const regenerateToken = () => {
                     <div class="text-caption text-medium-emphasis mb-2">{{ t('environments.api_url') }}</div>
                     <v-textarea :model-value="apiUrl" readonly variant="outlined" rows="3" density="compact" />
                     <p class="text-body-2 mb-4">{{ t('projects.api_hint') }}</p>
-                    <v-btn color="secondary" variant="flat" rounded="xl" block prepend-icon="mdi-lock-reset" @click="openRegenerateTokenModal">
+                    <v-btn class="env-action-btn" variant="flat" rounded="xl" block prepend-icon="mdi-lock-reset" @click="openRegenerateTokenModal">
                         {{ t('environments.regenerate_token') }}
                     </v-btn>
                 </v-card>
@@ -254,7 +254,7 @@ const regenerateToken = () => {
                     <v-btn variant="text" rounded="lg" @click="closeRegenerateTokenModal">
                         {{ t('profile.cancel') }}
                     </v-btn>
-                    <v-btn color="secondary" variant="flat" rounded="lg" :loading="tokenForm.processing" @click="regenerateToken">
+                    <v-btn class="env-action-btn" variant="flat" rounded="lg" :loading="tokenForm.processing" @click="regenerateToken">
                         {{ t('environments.regenerate_token_confirm_action') }}
                     </v-btn>
                 </div>
@@ -317,7 +317,7 @@ const regenerateToken = () => {
                     <v-btn variant="text" rounded="lg" @click="closeCreateEnvironmentModal">
                         {{ t('profile.cancel') }}
                     </v-btn>
-                    <v-btn color="primary" variant="flat" rounded="lg" :loading="environmentForm.processing" @click="createEnvironment">
+                    <v-btn class="env-action-btn" variant="flat" rounded="lg" :loading="environmentForm.processing" @click="createEnvironment">
                         {{ t('environments.create') }}
                     </v-btn>
                 </div>
