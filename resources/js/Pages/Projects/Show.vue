@@ -28,7 +28,8 @@ const sourceEnvironmentOptions = computed(() =>
 );
 const selectMenuProps = {
     contained: true,
-    zIndex: 10000,
+    contentClass: 'env-select-menu',
+    zIndex: 24000,
 };
 
 const contentForm = useForm({ content: activeEnvironment.value?.content ?? '' });
@@ -448,6 +449,7 @@ const deleteConfirmationLabel = computed(() => {
                 <v-select
                     v-if="environmentForm.creation_mode === 'copy'"
                     v-model="environmentForm.source_environment_id"
+                    class="copy-source-select"
                     :items="sourceEnvironmentOptions"
                     :label="t('environments.copy_source')"
                     :hint="t('environments.copy_source_hint')"
@@ -457,7 +459,7 @@ const deleteConfirmationLabel = computed(() => {
                     variant="outlined"
                 />
 
-                <div class="d-flex justify-end ga-3 mt-2">
+                <div class="create-environment-actions d-flex justify-end ga-3 mt-2">
                     <v-btn variant="text" rounded="lg" @click="closeCreateEnvironmentModal">
                         {{ t('profile.cancel') }}
                     </v-btn>
@@ -545,6 +547,21 @@ const deleteConfirmationLabel = computed(() => {
     border: 1px solid rgba(var(--v-theme-error), 0.26);
     border-radius: 1rem;
     background: rgba(var(--v-theme-error), 0.06);
+}
+
+.copy-source-select {
+    position: relative;
+    z-index: 20;
+}
+
+.copy-source-select :deep(.v-overlay__content),
+:global(.env-select-menu) {
+    z-index: 24000 !important;
+}
+
+.create-environment-actions {
+    position: relative;
+    z-index: 1;
 }
 
 .history-entry {
