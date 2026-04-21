@@ -21,8 +21,10 @@ const activeEnvironment = computed<ProjectEnvironment | undefined>(() =>
 const contentForm = useForm({ content: activeEnvironment.value?.content ?? '' });
 const environmentForm = useForm({ name: '', content: '' });
 const tokenForm = useForm({ current_password: '' });
+const creatingEnvironment = ref(false);
 const confirmingTokenRegeneration = ref(false);
 const tokenPasswordInput = ref<{ focus: () => void } | null>(null);
+const environmentNameInput = ref<{ focus: () => void } | null>(null);
 
 const apiUrl = computed(() => {
     if (!activeEnvironment.value) {
@@ -60,8 +62,22 @@ const saveContent = () => {
 const createEnvironment = () => {
     environmentForm.post(route('projects.environments.store', props.project.identifier), {
         preserveScroll: true,
-        onSuccess: () => environmentForm.reset(),
+        onSuccess: () => closeCreateEnvironmentModal(),
+        onError: () => environmentNameInput.value?.focus(),
+        onFinish: () => environmentForm.reset('content'),
     });
+};
+
+const openCreateEnvironmentModal = () => {
+    creatingEnvironment.value = true;
+
+    nextTick(() => environmentNameInput.value?.focus());
+};
+
+const closeCreateEnvironmentModal = () => {
+    creatingEnvironment.value = false;
+    environmentForm.clearErrors();
+    environmentForm.reset();
 };
 
 const openRegenerateTokenModal = () => {
@@ -103,7 +119,17 @@ const regenerateToken = () => {
 
                     <v-divider class="my-5" />
 
-                    <div class="text-subtitle-1 font-weight-bold mb-3">{{ t('environments.title') }}</div>
+                    <div class="d-flex align-center justify-space-between mb-3 ga-3">
+                        <div class="text-subtitle-1 font-weight-bold">{{ t('environments.title') }}</div>
+                        <v-btn
+                            icon="mdi-plus"
+                            size="small"
+                            color="primary"
+                            variant="tonal"
+                            rounded="xl"
+                            @click="openCreateEnvironmentModal"
+                        />
+                    </div>
                     <v-list bg-color="transparent" density="comfortable">
                         <v-list-item
                             v-for="environment in project.environments"
@@ -116,20 +142,6 @@ const regenerateToken = () => {
                         </v-list-item>
                     </v-list>
 
-                    <v-divider class="my-5" />
-
-                    <form @submit.prevent="createEnvironment">
-                        <v-text-field
-                            v-model="environmentForm.name"
-                            :label="t('environments.name')"
-                            :error-messages="environmentForm.errors.name"
-                            variant="outlined"
-                            density="comfortable"
-                        />
-                        <v-btn type="submit" color="primary" rounded="xl" block :loading="environmentForm.processing">
-                            {{ t('environments.create') }}
-                        </v-btn>
-                    </form>
                 </v-card>
             </v-col>
 
@@ -253,8 +265,36 @@ const regenerateToken = () => {
                     <v-btn variant="text" rounded="lg" @click="closeRegenerateTokenModal">
                         {{ t('profile.cancel') }}
                     </v-btn>
-                    <v-btn color="secondary" rounded="lg" :loading="tokenForm.processing" @click="regenerateToken">
+                    <v-btn color="secondary" variant="flat" rounded="lg" :loading="tokenForm.processing" @click="regenerateToken">
                         {{ t('environments.regenerate_token_confirm_action') }}
+                    </v-btn>
+                </div>
+            </div>
+        </Modal>
+
+        <Modal :show="creatingEnvironment" max-width="md" @close="closeCreateEnvironmentModal">
+            <div class="pa-6">
+                <div class="ops-kicker mb-2">{{ t('environments.new') }}</div>
+                <h2 class="text-h5 font-weight-black mb-2">{{ t('environments.create') }}</h2>
+                <p class="ops-muted mb-6">{{ t('environments.create_hint') }}</p>
+
+                <v-text-field
+                    id="environment_name"
+                    ref="environmentNameInput"
+                    v-model="environmentForm.name"
+                    :label="t('environments.name')"
+                    :error-messages="environmentForm.errors.name"
+                    autocomplete="off"
+                    variant="outlined"
+                    @keyup.enter="createEnvironment"
+                />
+
+                <div class="d-flex justify-end ga-3 mt-2">
+                    <v-btn variant="text" rounded="lg" @click="closeCreateEnvironmentModal">
+                        {{ t('profile.cancel') }}
+                    </v-btn>
+                    <v-btn color="primary" variant="flat" rounded="lg" :loading="environmentForm.processing" @click="createEnvironment">
+                        {{ t('environments.create') }}
                     </v-btn>
                 </div>
             </div>

@@ -73,6 +73,7 @@ return [
         'new' => 'New environment',
         'name' => 'Environment name',
         'create' => 'Create environment',
+        'create_hint' => 'Add a new environment for this project. You can name it now and fill in its content later.',
         'save' => 'Save env',
         'token' => 'Access token',
         'regenerate_token' => 'Regenerate token',

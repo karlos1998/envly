@@ -73,6 +73,7 @@ return [
         'new' => 'Nowe środowisko',
         'name' => 'Nazwa środowiska',
         'create' => 'Utwórz środowisko',
+        'create_hint' => 'Dodaj nowe środowisko dla tego projektu. Nazwę możesz ustawić teraz, a zawartość uzupełnić później.',
         'save' => 'Zapisz env',
         'token' => 'Token dostępu',
         'regenerate_token' => 'Wygeneruj nowy token',

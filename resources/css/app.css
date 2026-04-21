@@ -14,6 +14,8 @@
     --envly-primary: #59f3b7;
     --envly-primary-hover: #7fffd0;
     --envly-button-text: #071017;
+    --envly-button-disabled-bg: rgba(89, 243, 183, 0.16);
+    --envly-button-disabled-text: rgba(230, 237, 243, 0.42);
     --envly-card-start: rgba(13, 24, 33, 0.94);
     --envly-card-end: rgba(8, 18, 27, 0.94);
     --envly-card-border: rgba(89, 243, 183, 0.14);
@@ -39,6 +41,8 @@
     --envly-primary: #0f8f72;
     --envly-primary-hover: #0a705a;
     --envly-button-text: #ffffff;
+    --envly-button-disabled-bg: rgba(15, 143, 114, 0.14);
+    --envly-button-disabled-text: rgba(16, 32, 42, 0.42);
     --envly-card-start: rgba(255, 255, 255, 0.96);
     --envly-card-end: rgba(242, 247, 243, 0.96);
     --envly-card-border: rgba(15, 143, 114, 0.18);
@@ -172,8 +176,20 @@ body {
 
 .auth-card .v-btn.bg-primary,
 .env-card .v-btn.bg-primary,
-.ops-card .v-btn.bg-primary {
+.ops-card .v-btn.bg-primary,
+.auth-card .v-btn.bg-secondary,
+.env-card .v-btn.bg-secondary,
+.ops-card .v-btn.bg-secondary {
     color: var(--envly-button-text) !important;
+}
+
+.auth-card .v-btn.bg-primary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.env-card .v-btn.bg-primary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.ops-card .v-btn.bg-primary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.auth-card .v-btn.bg-secondary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.env-card .v-btn.bg-secondary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.ops-card .v-btn.bg-secondary:not(.v-btn--disabled):not(.v-btn--variant-text) {
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--envly-primary) 22%, transparent);
 }
 
 .auth-card .v-btn:not(.v-btn--icon),
@@ -201,6 +217,30 @@ body {
 .env-card .v-btn[type='submit']:hover,
 .ops-card .v-btn[type='submit']:hover {
     background: var(--envly-primary-hover) !important;
+}
+
+.auth-card .v-btn.v-btn--disabled,
+.env-card .v-btn.v-btn--disabled,
+.ops-card .v-btn.v-btn--disabled {
+    opacity: 1 !important;
+    background: var(--envly-button-disabled-bg) !important;
+    color: var(--envly-button-disabled-text) !important;
+    box-shadow: none !important;
+}
+
+.auth-card .v-btn.v-btn--disabled .v-btn__overlay,
+.env-card .v-btn.v-btn--disabled .v-btn__overlay,
+.ops-card .v-btn.v-btn--disabled .v-btn__overlay {
+    opacity: 0 !important;
+}
+
+.auth-card .v-btn.v-btn--disabled .v-btn__content,
+.env-card .v-btn.v-btn--disabled .v-btn__content,
+.ops-card .v-btn.v-btn--disabled .v-btn__content,
+.auth-card .v-btn.v-btn--disabled .v-btn__prepend,
+.env-card .v-btn.v-btn--disabled .v-btn__prepend,
+.ops-card .v-btn.v-btn--disabled .v-btn__prepend {
+    opacity: 1 !important;
 }
 
 .auth-card .v-selection-control,
