@@ -4,13 +4,36 @@ import ThemeModeSwitch from '@/Components/ThemeModeSwitch.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import type { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const page = usePage<PageProps>();
 const { t } = useTranslations();
 const user = computed(() => page.props.auth.user);
+const toast = ref({
+    show: false,
+    message: '',
+    color: 'success',
+});
 
 const logout = () => router.post(route('logout'));
+
+watch(
+    () => [page.props.flash.success, page.props.flash.error],
+    ([success, error]) => {
+        const message = success ?? error;
+
+        if (!message) {
+            return;
+        }
+
+        toast.value = {
+            show: true,
+            message,
+            color: success ? 'success' : 'error',
+        };
+    },
+    { immediate: true },
+);
 </script>
 
 <template>
@@ -34,19 +57,28 @@ const logout = () => router.post(route('logout'));
 
         <v-main class="ops-main">
             <v-container class="py-8" max-width="1320">
-                <v-alert
-                    v-if="page.props.flash.success"
-                    class="mb-5"
-                    color="success"
-                    variant="tonal"
-                    rounded="lg"
-                >
-                    {{ page.props.flash.success }}
-                </v-alert>
-
                 <slot />
             </v-container>
         </v-main>
+
+        <v-snackbar
+            v-model="toast.show"
+            :color="toast.color"
+            location="top right"
+            rounded="lg"
+            timeout="3200"
+            variant="flat"
+            class="ops-toast"
+        >
+            <div class="d-flex align-center ga-3">
+                <v-icon :icon="toast.color === 'success' ? 'mdi-check-circle-outline' : 'mdi-alert-circle-outline'" />
+                <span>{{ toast.message }}</span>
+            </div>
+
+            <template #actions>
+                <v-btn icon="mdi-close" variant="text" @click="toast.show = false" />
+            </template>
+        </v-snackbar>
     </v-app>
 </template>
 
@@ -63,5 +95,10 @@ const logout = () => router.post(route('logout'));
 
 .brand-link {
     text-decoration: none;
+}
+
+.ops-toast :deep(.v-snackbar__wrapper) {
+    border: 1px solid color-mix(in srgb, var(--envly-primary) 22%, transparent);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
 }
 </style>
