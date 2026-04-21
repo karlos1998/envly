@@ -5,7 +5,7 @@ import EnvTextEditor from '@/Components/Env/EnvTextEditor.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import type { EnvironmentVersion, Project, ProjectEnvironment } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, nextTick, ref, watch } from 'vue';
 
 const props = defineProps<{ project: Project }>();
@@ -13,19 +13,44 @@ const { t } = useTranslations();
 
 const selectedEnvironmentId = ref<number>(props.project.environments[0]?.id ?? 0);
 const editorMode = ref<'text' | 'rows'>('text');
+type EnvironmentCreationMode = 'empty' | 'copy';
 
 const activeEnvironment = computed<ProjectEnvironment | undefined>(() =>
     props.project.environments.find((environment) => environment.id === selectedEnvironmentId.value),
 );
 
+const canDeleteEnvironment = computed(() => props.project.environments.length > 1);
+const environmentCreationModeOptions = computed(() => [
+    { title: t('environments.create_empty'), value: 'empty' },
+    { title: t('environments.create_from_existing'), value: 'copy' },
+]);
+const sourceEnvironmentOptions = computed(() =>
+    props.project.environments.map((environment) => ({
+        title: environment.name,
+        value: environment.id,
+    })),
+);
+
 const contentForm = useForm({ content: activeEnvironment.value?.content ?? '' });
-const environmentForm = useForm({ name: '', content: '' });
+const environmentForm = useForm<{
+    name: string;
+    creation_mode: EnvironmentCreationMode;
+    source_environment_id: number | null;
+}>({
+    name: '',
+    creation_mode: 'empty',
+    source_environment_id: null,
+});
 const tokenForm = useForm({ current_password: '' });
+const deleteEnvironmentForm = useForm({ name: '' });
 const creatingEnvironment = ref(false);
 const confirmingTokenRegeneration = ref(false);
+const confirmingEnvironmentDeletion = ref(false);
 const selectedHistoryVersion = ref<EnvironmentVersion | null>(null);
+const selectedEnvironmentForDeletion = ref<ProjectEnvironment | null>(null);
 const tokenPasswordInput = ref<{ focus: () => void } | null>(null);
 const environmentNameInput = ref<{ focus: () => void } | null>(null);
+const deleteEnvironmentNameInput = ref<{ focus: () => void } | null>(null);
 
 const apiUrl = computed(() => {
     if (!activeEnvironment.value) {
@@ -38,6 +63,28 @@ const apiUrl = computed(() => {
 watch(activeEnvironment, (environment) => {
     contentForm.content = environment?.content ?? '';
 });
+
+watch(
+    () => props.project.environments.map((environment) => environment.id),
+    (environmentIds) => {
+        if (!environmentIds.includes(selectedEnvironmentId.value)) {
+            selectedEnvironmentId.value = environmentIds[0] ?? 0;
+        }
+    },
+);
+
+watch(
+    () => environmentForm.creation_mode,
+    (creationMode) => {
+        if (creationMode === 'empty') {
+            environmentForm.source_environment_id = null;
+
+            return;
+        }
+
+        environmentForm.source_environment_id ??= activeEnvironment.value?.id ?? props.project.environments[0]?.id ?? null;
+    },
+);
 
 const formatDateTime = (value: string | null): string => {
     if (!value) {
@@ -60,12 +107,15 @@ const saveContent = () => {
     });
 };
 
+const goToProjects = () => {
+    router.visit(route('projects.index'));
+};
+
 const createEnvironment = () => {
     environmentForm.post(route('projects.environments.store', props.project.identifier), {
         preserveScroll: true,
         onSuccess: () => closeCreateEnvironmentModal(),
         onError: () => environmentNameInput.value?.focus(),
-        onFinish: () => environmentForm.reset('content'),
     });
 };
 
@@ -79,6 +129,24 @@ const closeCreateEnvironmentModal = () => {
     creatingEnvironment.value = false;
     environmentForm.clearErrors();
     environmentForm.reset();
+};
+
+const openDeleteEnvironmentModal = () => {
+    if (!activeEnvironment.value || !canDeleteEnvironment.value) {
+        return;
+    }
+
+    selectedEnvironmentForDeletion.value = activeEnvironment.value;
+    confirmingEnvironmentDeletion.value = true;
+
+    nextTick(() => deleteEnvironmentNameInput.value?.focus());
+};
+
+const closeDeleteEnvironmentModal = () => {
+    confirmingEnvironmentDeletion.value = false;
+    selectedEnvironmentForDeletion.value = null;
+    deleteEnvironmentForm.clearErrors();
+    deleteEnvironmentForm.reset();
 };
 
 const openRegenerateTokenModal = () => {
@@ -113,6 +181,30 @@ const regenerateToken = () => {
         onFinish: () => tokenForm.reset('current_password'),
     });
 };
+
+const deleteEnvironment = () => {
+    if (!selectedEnvironmentForDeletion.value) {
+        return;
+    }
+
+    deleteEnvironmentForm.delete(
+        route('projects.environments.destroy', [props.project.identifier, selectedEnvironmentForDeletion.value.id]),
+        {
+            preserveScroll: true,
+            onSuccess: () => closeDeleteEnvironmentModal(),
+            onError: () => deleteEnvironmentNameInput.value?.focus(),
+            onFinish: () => deleteEnvironmentForm.reset('name'),
+        },
+    );
+};
+
+const deleteConfirmationLabel = computed(() => {
+    if (!selectedEnvironmentForDeletion.value) {
+        return t('environments.name');
+    }
+
+    return t('environments.delete_confirm_label').replace(':name', selectedEnvironmentForDeletion.value.name);
+});
 </script>
 
 <template>
@@ -122,6 +214,10 @@ const regenerateToken = () => {
         <v-row>
             <v-col cols="12" lg="3">
                 <v-card class="env-card pa-5" rounded="xl">
+                    <v-btn variant="text" rounded="lg" size="small" prepend-icon="mdi-arrow-left" class="mb-4 px-0" @click="goToProjects">
+                        {{ t('environments.back_to_projects') }}
+                    </v-btn>
+
                     <div class="text-overline text-secondary font-weight-bold">{{ t('projects.identifier') }}</div>
                     <h1 class="text-h4 font-weight-black mb-2">{{ project.name }}</h1>
                     <v-chip color="primary" variant="tonal">{{ project.identifier }}</v-chip>
@@ -189,6 +285,26 @@ const regenerateToken = () => {
                                 {{ t('environments.save') }}
                             </v-btn>
                         </div>
+                    </div>
+
+                    <div class="environment-danger-zone mt-5">
+                        <div>
+                            <div class="text-caption font-weight-bold text-error">{{ t('environments.delete') }}</div>
+                            <p class="text-caption text-medium-emphasis mb-0">
+                                {{ canDeleteEnvironment ? t('environments.delete_hint') : t('environments.delete_disabled_hint') }}
+                            </p>
+                        </div>
+                        <v-btn
+                            color="error"
+                            variant="tonal"
+                            rounded="lg"
+                            size="small"
+                            prepend-icon="mdi-trash-can-outline"
+                            :disabled="!canDeleteEnvironment"
+                            @click="openDeleteEnvironmentModal"
+                        >
+                            {{ t('environments.delete') }}
+                        </v-btn>
                     </div>
                 </v-card>
             </v-col>
@@ -313,12 +429,59 @@ const regenerateToken = () => {
                     @keyup.enter="createEnvironment"
                 />
 
+                <v-select
+                    v-model="environmentForm.creation_mode"
+                    :items="environmentCreationModeOptions"
+                    :label="t('environments.create_mode')"
+                    :error-messages="environmentForm.errors.creation_mode"
+                    variant="outlined"
+                />
+
+                <v-select
+                    v-if="environmentForm.creation_mode === 'copy'"
+                    v-model="environmentForm.source_environment_id"
+                    :items="sourceEnvironmentOptions"
+                    :label="t('environments.copy_source')"
+                    :hint="t('environments.copy_source_hint')"
+                    :error-messages="environmentForm.errors.source_environment_id"
+                    persistent-hint
+                    variant="outlined"
+                />
+
                 <div class="d-flex justify-end ga-3 mt-2">
                     <v-btn variant="text" rounded="lg" @click="closeCreateEnvironmentModal">
                         {{ t('profile.cancel') }}
                     </v-btn>
                     <v-btn class="env-action-btn" variant="flat" rounded="lg" :loading="environmentForm.processing" @click="createEnvironment">
                         {{ t('environments.create') }}
+                    </v-btn>
+                </div>
+            </div>
+        </Modal>
+
+        <Modal :show="confirmingEnvironmentDeletion" max-width="md" @close="closeDeleteEnvironmentModal">
+            <div v-if="selectedEnvironmentForDeletion" class="pa-6">
+                <div class="ops-kicker mb-2">{{ t('environments.delete') }}</div>
+                <h2 class="text-h5 font-weight-black mb-2">{{ t('environments.delete_confirm_title') }}</h2>
+                <p class="ops-muted mb-6">{{ t('environments.delete_confirm_body') }}</p>
+
+                <v-text-field
+                    id="delete_environment_name"
+                    ref="deleteEnvironmentNameInput"
+                    v-model="deleteEnvironmentForm.name"
+                    :label="deleteConfirmationLabel"
+                    :error-messages="deleteEnvironmentForm.errors.name"
+                    autocomplete="off"
+                    variant="outlined"
+                    @keyup.enter="deleteEnvironment"
+                />
+
+                <div class="d-flex justify-end ga-3 mt-2">
+                    <v-btn variant="text" rounded="lg" @click="closeDeleteEnvironmentModal">
+                        {{ t('profile.cancel') }}
+                    </v-btn>
+                    <v-btn color="error" variant="flat" rounded="lg" :loading="deleteEnvironmentForm.processing" @click="deleteEnvironment">
+                        {{ t('environments.delete_confirm_action') }}
                     </v-btn>
                 </div>
             </div>
@@ -362,6 +525,17 @@ const regenerateToken = () => {
     background: linear-gradient(135deg, #59f3b7, #34d399) !important;
     color: #04110d !important;
     opacity: 1 !important;
+}
+
+.environment-danger-zone {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid rgba(var(--v-theme-error), 0.26);
+    border-radius: 1rem;
+    background: rgba(var(--v-theme-error), 0.06);
 }
 
 .history-entry {

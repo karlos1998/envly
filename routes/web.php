@@ -16,6 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::resource('projects', ProjectController::class)->except(['create', 'edit']);
     Route::post('projects/{project}/environments', [EnvironmentController::class, 'store'])->name('projects.environments.store');
     Route::put('projects/{project}/environments/{environment}', [EnvironmentController::class, 'update'])->name('projects.environments.update');
+    Route::delete('projects/{project}/environments/{environment}', [EnvironmentController::class, 'destroy'])->name('projects.environments.destroy');
     Route::post('projects/{project}/environments/{environment}/token', [EnvironmentController::class, 'regenerateToken'])->name('projects.environments.token');
 });
 

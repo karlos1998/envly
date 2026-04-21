@@ -23,4 +23,19 @@ class ProjectEnvironmentRepository
             ->where('slug', $slug)
             ->exists();
     }
+
+    public function findForProject(Project $project, int $environmentId): ?ProjectEnvironment
+    {
+        return ProjectEnvironment::query()
+            ->whereBelongsTo($project)
+            ->whereKey($environmentId)
+            ->first();
+    }
+
+    public function countForProject(Project $project): int
+    {
+        return ProjectEnvironment::query()
+            ->whereBelongsTo($project)
+            ->count();
+    }
 }

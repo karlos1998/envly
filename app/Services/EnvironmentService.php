@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Repositories\ProjectEnvironmentRepository;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class EnvironmentService
 {
@@ -18,10 +19,19 @@ class EnvironmentService
         private ProjectEnvironmentRepository $environments,
     ) {}
 
-    public function create(Project $project, string $name, ?User $actor = null, string $content = ''): ProjectEnvironment
+    public function create(Project $project, string $name, ?User $actor = null, string $content = '', ?int $sourceEnvironmentId = null): ProjectEnvironment
     {
         $slug = $this->makeUniqueSlug($project, $name);
         $token = $this->tokens->generate();
+        $sourceEnvironment = $sourceEnvironmentId === null ? null : $this->environments->findForProject($project, $sourceEnvironmentId);
+
+        if ($sourceEnvironmentId !== null && $sourceEnvironment === null) {
+            throw ValidationException::withMessages([
+                'source_environment_id' => __('messages.validation.environment_copy_source_invalid'),
+            ]);
+        }
+
+        $content = $sourceEnvironment?->content ?? $content;
 
         return DB::transaction(function () use ($project, $name, $slug, $token, $actor, $content): ProjectEnvironment {
             $environment = ProjectEnvironment::create([
@@ -113,6 +123,31 @@ class EnvironmentService
                 ->log('environment.token_regenerated');
 
             return $environment->refresh();
+        });
+    }
+
+    public function delete(Project $project, ProjectEnvironment $environment, User $actor): void
+    {
+        if ($environment->project_id !== $project->id) {
+            throw ValidationException::withMessages([
+                'name' => __('messages.validation.environment_invalid_project'),
+            ]);
+        }
+
+        if ($this->environments->countForProject($project) <= 1) {
+            throw ValidationException::withMessages([
+                'name' => __('messages.validation.environment_last_one'),
+            ]);
+        }
+
+        DB::transaction(function () use ($environment, $actor): void {
+            activity()
+                ->causedBy($actor)
+                ->performedOn($environment)
+                ->event('deleted')
+                ->log('environment.deleted');
+
+            $environment->delete();
         });
     }
 

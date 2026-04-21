@@ -52,6 +52,115 @@ it('does not store content history for an empty created environment', function (
     expect($environment->versions()->count())->toBe(0);
 });
 
+it('creates an environment by copying another environment content', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $sourceEnvironment = ProjectEnvironment::factory()->for($project)->create([
+        'name' => 'Production',
+        'slug' => 'production',
+        'content' => "APP_NAME=Copied\nAPP_ENV=production\n",
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('projects.environments.store', $project), [
+            'name' => 'Staging',
+            'creation_mode' => 'copy',
+            'source_environment_id' => $sourceEnvironment->id,
+        ])
+        ->assertRedirect();
+
+    $environment = $project->environments()->where('slug', 'staging')->firstOrFail();
+
+    expect($environment->content)->toBe("APP_NAME=Copied\nAPP_ENV=production\n")
+        ->and($environment->versions()->count())->toBe(1);
+});
+
+it('does not copy an environment from another project', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $otherProject = Project::factory()->for($user)->create();
+    $sourceEnvironment = ProjectEnvironment::factory()->for($otherProject)->create([
+        'name' => 'Production',
+        'slug' => 'production',
+        'content' => 'SECRET=external',
+    ]);
+
+    $this->actingAs($user)
+        ->from(route('projects.show', $project))
+        ->post(route('projects.environments.store', $project), [
+            'name' => 'Staging',
+            'creation_mode' => 'copy',
+            'source_environment_id' => $sourceEnvironment->id,
+        ])
+        ->assertRedirect(route('projects.show', $project))
+        ->assertSessionHasErrors('source_environment_id');
+
+    expect($project->environments()->where('slug', 'staging')->exists())->toBeFalse();
+});
+
+it('deletes an environment after confirming its name', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    ProjectEnvironment::factory()->for($project)->create([
+        'name' => 'main',
+        'slug' => 'main',
+    ]);
+    $environment = ProjectEnvironment::factory()->for($project)->create([
+        'name' => 'Staging',
+        'slug' => 'staging',
+    ]);
+
+    $this->actingAs($user)
+        ->delete(route('projects.environments.destroy', [$project, $environment]), [
+            'name' => 'Staging',
+        ])
+        ->assertRedirect();
+
+    $this->assertModelMissing($environment);
+});
+
+it('does not delete an environment when it is the only one in a project', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $environment = ProjectEnvironment::factory()->for($project)->create([
+        'name' => 'main',
+        'slug' => 'main',
+    ]);
+
+    $this->actingAs($user)
+        ->from(route('projects.show', $project))
+        ->delete(route('projects.environments.destroy', [$project, $environment]), [
+            'name' => 'main',
+        ])
+        ->assertRedirect(route('projects.show', $project))
+        ->assertSessionHasErrors('name');
+
+    expect($environment->refresh()->exists)->toBeTrue();
+});
+
+it('requires the environment name before deleting it', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    ProjectEnvironment::factory()->for($project)->create([
+        'name' => 'main',
+        'slug' => 'main',
+    ]);
+    $environment = ProjectEnvironment::factory()->for($project)->create([
+        'name' => 'Staging',
+        'slug' => 'staging',
+    ]);
+
+    $this->actingAs($user)
+        ->from(route('projects.show', $project))
+        ->delete(route('projects.environments.destroy', [$project, $environment]), [
+            'name' => 'Production',
+        ])
+        ->assertRedirect(route('projects.show', $project))
+        ->assertSessionHasErrors('name');
+
+    expect($environment->refresh()->exists)->toBeTrue();
+});
+
 it('searches owned projects by name or identifier', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();

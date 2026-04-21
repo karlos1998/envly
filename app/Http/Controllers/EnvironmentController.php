@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Environment\DeleteEnvironmentRequest;
 use App\Http\Requests\Environment\RegenerateEnvironmentTokenRequest;
 use App\Http\Requests\Environment\StoreEnvironmentRequest;
 use App\Http\Requests\Environment\UpdateEnvironmentRequest;
@@ -23,6 +24,7 @@ class EnvironmentController extends Controller
             name: $request->validated('name'),
             actor: $request->user(),
             content: $request->validated('content') ?? '',
+            sourceEnvironmentId: $request->sourceEnvironmentId(),
         );
 
         return back()->with('success', __('messages.flash.environment_created'));
@@ -48,5 +50,16 @@ class EnvironmentController extends Controller
         $this->service->regenerateToken($environment, $request->user());
 
         return back()->with('success', __('messages.flash.token_regenerated'));
+    }
+
+    public function destroy(DeleteEnvironmentRequest $request, Project $project, ProjectEnvironment $environment): RedirectResponse
+    {
+        abort_unless($environment->project_id === $project->id, 404);
+
+        $this->authorize('delete', $environment);
+
+        $this->service->delete($project, $environment, $request->user());
+
+        return back()->with('success', __('messages.flash.environment_deleted'));
     }
 }
