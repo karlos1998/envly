@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTranslations } from '@/composables/useTranslations';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import type { Project } from '@/types';
+import type { EnvTemplateOption, Project } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -9,12 +9,13 @@ const props = defineProps<{
     filters: {
         search: string;
     };
+    envTemplateOptions: EnvTemplateOption[];
     projects: Project[];
 }>();
 
 const { t } = useTranslations();
 const search = ref(props.filters.search);
-const form = useForm({ name: '' });
+const form = useForm<{ name: string; template: string | null }>({ name: '', template: null });
 
 const submit = () => form.post(route('projects.store'), { onSuccess: () => form.reset() });
 
@@ -50,6 +51,30 @@ const clearSearch = () => {
                             variant="outlined"
                             autofocus
                         />
+                        <v-select
+                            v-model="form.template"
+                            :items="props.envTemplateOptions"
+                            :label="t('projects.template')"
+                            :hint="t('projects.template_hint')"
+                            :placeholder="t('projects.template_empty')"
+                            :error-messages="form.errors.template"
+                            item-title="label"
+                            item-value="value"
+                            persistent-hint
+                            clearable
+                            variant="outlined"
+                        >
+                            <template #item="{ props: itemProps, item }">
+                                <v-list-item v-bind="itemProps">
+                                    <v-list-item-subtitle>
+                                        {{ item.description }}
+                                    </v-list-item-subtitle>
+                                </v-list-item>
+                            </template>
+                            <template #selection="{ item }">
+                                {{ item.label }}
+                            </template>
+                        </v-select>
                         <v-btn type="submit" color="primary" rounded="xl" size="large" :loading="form.processing" block>
                             {{ t('projects.create') }}
                         </v-btn>

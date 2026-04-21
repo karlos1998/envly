@@ -62,11 +62,20 @@ return [
         'search_placeholder' => 'Name or identifier',
         'clear_search' => 'Clear',
         'name' => 'Project name',
+        'template' => 'Env template',
+        'template_empty' => 'No template',
+        'template_hint' => 'Optionally fill the default main environment with a ready .env file.',
         'identifier' => 'Identifier',
         'create' => 'Create project',
         'delete' => 'Delete project',
         'open' => 'Open',
         'api_hint' => 'Fetch this environment as plain text from GitHub Actions or CI.',
+    ],
+    'env_templates' => [
+        'laravel' => [
+            'label' => 'Laravel',
+            'description' => 'Starter .env for a Laravel app with SQLite, database queues, and database cache.',
+        ],
     ],
     'environments' => [
         'title' => 'Environments',

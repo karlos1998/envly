@@ -20,6 +20,25 @@ it('creates a project with a globally unique identifier and main environment', f
         ->and($project->environments()->where('slug', 'main')->exists())->toBeTrue();
 });
 
+it('creates a project with a laravel env template', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->post(route('projects.store'), [
+            'name' => 'Laravel App',
+            'template' => 'laravel',
+        ])
+        ->assertRedirect();
+
+    $project = Project::query()->whereBelongsTo($user)->firstOrFail();
+    $environment = $project->environments()->where('slug', 'main')->firstOrFail();
+
+    expect($environment->content)->toStartWith("APP_NAME=Laravel\nAPP_ENV=local\nAPP_KEY=\n")
+        ->and($environment->content)->toContain('DB_CONNECTION=sqlite')
+        ->and($environment->content)->toContain('MAIL_FROM_NAME="${APP_NAME}"')
+        ->and($environment->content)->toContain('VITE_APP_NAME="${APP_NAME}"');
+});
+
 it('does not store content history for an empty created environment', function () {
     $user = User::factory()->create();
     $project = Project::factory()->for($user)->create();

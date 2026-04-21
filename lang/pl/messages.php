@@ -62,11 +62,20 @@ return [
         'search_placeholder' => 'Nazwa albo identyfikator',
         'clear_search' => 'Wyczyść',
         'name' => 'Nazwa projektu',
+        'template' => 'Szablon env',
+        'template_empty' => 'Bez szablonu',
+        'template_hint' => 'Opcjonalnie wypełnij domyślne środowisko main gotowym plikiem .env.',
         'identifier' => 'Identyfikator',
         'create' => 'Utwórz projekt',
         'delete' => 'Usuń projekt',
         'open' => 'Otwórz',
         'api_hint' => 'Pobierz to środowisko jako plain text z GitHub Actions albo CI.',
+    ],
+    'env_templates' => [
+        'laravel' => [
+            'label' => 'Laravel',
+            'description' => 'Startowy .env dla aplikacji Laravel z SQLite, kolejkami i cache w bazie.',
+        ],
     ],
     'environments' => [
         'title' => 'Środowiska',

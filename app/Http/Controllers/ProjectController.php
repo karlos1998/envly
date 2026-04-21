@@ -7,6 +7,7 @@ use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
 use App\Repositories\ProjectRepository;
+use App\Services\EnvTemplateCatalog;
 use App\Services\ProjectPresenter;
 use App\Services\ProjectService;
 use Illuminate\Http\RedirectResponse;
@@ -19,6 +20,7 @@ class ProjectController extends Controller
         private ProjectRepository $projects,
         private ProjectService $service,
         private ProjectPresenter $presenter,
+        private EnvTemplateCatalog $templates,
     ) {}
 
     public function index(SearchProjectsRequest $request): Response
@@ -29,13 +31,14 @@ class ProjectController extends Controller
             'filters' => [
                 'search' => $search ?? '',
             ],
+            'envTemplateOptions' => $this->templates->options(),
             'projects' => $this->presenter->projects($this->projects->forUser($request->user(), $search)),
         ]);
     }
 
     public function store(StoreProjectRequest $request): RedirectResponse
     {
-        $project = $this->service->create($request->user(), $request->validated('name'));
+        $project = $this->service->create($request->user(), $request->validated('name'), $request->template());
 
         return to_route('projects.show', $project)
             ->with('success', __('messages.flash.project_created'));

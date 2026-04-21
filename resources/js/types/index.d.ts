@@ -11,6 +11,12 @@ export interface LocaleOption {
     label: string;
 }
 
+export interface EnvTemplateOption {
+    value: string;
+    label: string;
+    description: string;
+}
+
 export interface EnvironmentVersion {
     id: number;
     summary: string | null;

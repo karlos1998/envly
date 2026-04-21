@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\EnvTemplate;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -11,18 +12,19 @@ class ProjectService
     public function __construct(
         private ProjectIdentifierService $identifiers,
         private EnvironmentService $environments,
+        private EnvTemplateCatalog $templates,
     ) {}
 
-    public function create(User $user, string $name): Project
+    public function create(User $user, string $name, ?EnvTemplate $template = null): Project
     {
-        return DB::transaction(function () use ($user, $name): Project {
+        return DB::transaction(function () use ($user, $name, $template): Project {
             $project = Project::create([
                 'user_id' => $user->id,
                 'name' => $name,
                 'identifier' => $this->identifiers->make($name),
             ]);
 
-            $this->environments->create($project, 'main', $user, "APP_NAME=\nAPP_ENV=production\n");
+            $this->environments->create($project, 'main', $user, $this->templates->content($template));
 
             activity()
                 ->causedBy($user)
