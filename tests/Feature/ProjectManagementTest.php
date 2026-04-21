@@ -20,6 +20,19 @@ it('creates a project with a globally unique identifier and main environment', f
         ->and($project->environments()->where('slug', 'main')->exists())->toBeTrue();
 });
 
+it('does not store content history for an empty created environment', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->post(route('projects.environments.store', $project), ['name' => 'Staging'])
+        ->assertRedirect();
+
+    $environment = $project->environments()->where('slug', 'staging')->firstOrFail();
+
+    expect($environment->versions()->count())->toBe(0);
+});
+
 it('searches owned projects by name or identifier', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
@@ -63,6 +76,23 @@ it('stores a new environment version when content changes', function () {
 
     expect($environment->refresh()->content)->toBe("APP_NAME=New\nAPP_DEBUG=false\n")
         ->and(EnvironmentVersion::query()->where('project_environment_id', $environment->id)->count())->toBe(1);
+});
+
+it('does not store environment history when content does not change', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $environment = ProjectEnvironment::factory()->for($project)->create([
+        'content' => "APP_NAME=Same\nAPP_DEBUG=false\n",
+    ]);
+
+    $this->actingAs($user)
+        ->put(route('projects.environments.update', [$project, $environment]), [
+            'content' => "APP_NAME=Same\nAPP_DEBUG=false\n",
+        ])
+        ->assertRedirect();
+
+    expect($environment->refresh()->content)->toBe("APP_NAME=Same\nAPP_DEBUG=false\n")
+        ->and(EnvironmentVersion::query()->where('project_environment_id', $environment->id)->count())->toBe(0);
 });
 
 it('requires the current password to regenerate an environment token', function () {
@@ -119,20 +149,22 @@ it('includes detailed history entries on the project page', function () {
         'content' => "APP_NAME=Current\nAPP_DEBUG=false\n",
     ]);
 
-    EnvironmentVersion::factory()->for($environment)->for($user, 'creator')->create([
+    EnvironmentVersion::factory()->for($environment, 'environment')->for($user, 'creator')->create([
         'summary' => __('messages.history.environment_updated'),
         'previous_content' => "APP_NAME=Previous\n",
         'content' => "APP_NAME=Current\nAPP_DEBUG=false\n",
         'added_lines' => 1,
         'removed_lines' => 1,
+        'created_at' => now()->subMinute(),
     ]);
 
-    EnvironmentVersion::factory()->for($environment)->for($user, 'creator')->create([
+    EnvironmentVersion::factory()->for($environment, 'environment')->for($user, 'creator')->create([
         'summary' => __('messages.history.token_regenerated'),
         'previous_content' => "APP_NAME=Current\nAPP_DEBUG=false\n",
         'content' => "APP_NAME=Current\nAPP_DEBUG=false\n",
         'added_lines' => 0,
         'removed_lines' => 0,
+        'created_at' => now(),
     ]);
 
     $this->actingAs($user)

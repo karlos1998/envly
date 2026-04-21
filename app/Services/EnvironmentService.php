@@ -33,7 +33,11 @@ class EnvironmentService
                 'access_token_hash' => $this->tokens->hash($token),
             ]);
 
-            $this->createVersion($environment, null, $content, $actor, __('messages.history.environment_created'));
+            $changes = $this->diffs->countChangedLines(null, $content);
+
+            if ($changes['added'] > 0 || $changes['removed'] > 0) {
+                $this->createVersion($environment, null, $content, $actor, __('messages.history.environment_created'), $changes);
+            }
 
             activity()
                 ->causedBy($actor)
@@ -45,10 +49,15 @@ class EnvironmentService
         });
     }
 
-    public function updateContent(ProjectEnvironment $environment, string $content, User $actor): EnvironmentVersion
+    public function updateContent(ProjectEnvironment $environment, string $content, User $actor): ?EnvironmentVersion
     {
-        return DB::transaction(function () use ($environment, $content, $actor): EnvironmentVersion {
+        return DB::transaction(function () use ($environment, $content, $actor): ?EnvironmentVersion {
             $previousContent = $environment->content;
+            $changes = $this->diffs->countChangedLines($previousContent, $content);
+
+            if ($changes['added'] === 0 && $changes['removed'] === 0) {
+                return null;
+            }
 
             $environment->update(['content' => $content]);
 
@@ -58,6 +67,7 @@ class EnvironmentService
                 content: $content,
                 actor: $actor,
                 summary: __('messages.history.environment_updated'),
+                changes: $changes,
             );
 
             activity()
@@ -125,9 +135,12 @@ class EnvironmentService
         return $slug;
     }
 
-    private function createVersion(ProjectEnvironment $environment, ?string $previousContent, string $content, ?User $actor, string $summary): EnvironmentVersion
+    /**
+     * @param  array{added:int, removed:int}|null  $changes
+     */
+    private function createVersion(ProjectEnvironment $environment, ?string $previousContent, string $content, ?User $actor, string $summary, ?array $changes = null): EnvironmentVersion
     {
-        $changes = $this->diffs->countChangedLines($previousContent, $content);
+        $changes ??= $this->diffs->countChangedLines($previousContent, $content);
 
         return $environment->versions()->create([
             'created_by_id' => $actor?->id,

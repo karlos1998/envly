@@ -4,7 +4,7 @@ import EnvRowsEditor from '@/Components/Env/EnvRowsEditor.vue';
 import EnvTextEditor from '@/Components/Env/EnvTextEditor.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import type { Project, ProjectEnvironment } from '@/types';
+import type { EnvironmentVersion, Project, ProjectEnvironment } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, nextTick, ref, watch } from 'vue';
 
@@ -23,6 +23,7 @@ const environmentForm = useForm({ name: '', content: '' });
 const tokenForm = useForm({ current_password: '' });
 const creatingEnvironment = ref(false);
 const confirmingTokenRegeneration = ref(false);
+const selectedHistoryVersion = ref<EnvironmentVersion | null>(null);
 const tokenPasswordInput = ref<{ focus: () => void } | null>(null);
 const environmentNameInput = ref<{ focus: () => void } | null>(null);
 
@@ -90,6 +91,14 @@ const closeRegenerateTokenModal = () => {
     confirmingTokenRegeneration.value = false;
     tokenForm.clearErrors();
     tokenForm.reset();
+};
+
+const openHistoryDetailsModal = (version: EnvironmentVersion) => {
+    selectedHistoryVersion.value = version;
+};
+
+const closeHistoryDetailsModal = () => {
+    selectedHistoryVersion.value = null;
 };
 
 const regenerateToken = () => {
@@ -198,47 +207,27 @@ const regenerateToken = () => {
 
                 <v-card v-if="activeEnvironment" class="env-card pa-5" rounded="xl">
                     <div class="text-subtitle-1 font-weight-bold mb-3">{{ t('environments.history') }}</div>
-                    <v-expansion-panels variant="accordion">
-                        <v-expansion-panel
+                    <div class="d-flex flex-column ga-3">
+                        <button
                             v-for="version in activeEnvironment.versions"
                             :key="version.id"
-                            rounded="lg"
-                            class="mb-3 history-panel"
+                            type="button"
+                            class="history-entry"
+                            @click="openHistoryDetailsModal(version)"
                         >
-                            <v-expansion-panel-title>
-                                <div class="w-100 pr-4">
-                                    <div class="font-weight-bold">{{ version.summary }}</div>
-                                    <div class="text-caption text-medium-emphasis mt-1">
-                                        +{{ version.added_lines }} {{ t('history.added') }}, -{{ version.removed_lines }} {{ t('history.removed') }}
-                                    </div>
-                                    <div class="text-caption mt-1">
-                                        {{ t('history.changed_by') }}: {{ version.creator?.name ?? '—' }}
-                                        <span v-if="version.created_at">· {{ formatDateTime(version.created_at) }}</span>
-                                    </div>
+                            <div class="w-100">
+                                <div class="font-weight-bold">{{ version.summary }}</div>
+                                <div class="text-caption text-medium-emphasis mt-1">
+                                    +{{ version.added_lines }} {{ t('history.added') }}, -{{ version.removed_lines }} {{ t('history.removed') }}
                                 </div>
-                            </v-expansion-panel-title>
-                            <v-expansion-panel-text>
-                                <div class="text-subtitle-2 font-weight-bold mb-3">{{ t('history.details') }}</div>
-
-                                <template v-if="version.has_content_changes">
-                                    <div class="history-detail-grid">
-                                        <div>
-                                            <div class="text-caption text-medium-emphasis mb-2">{{ t('history.before') }}</div>
-                                            <pre class="history-content">{{ version.previous_content || t('history.no_previous_content') }}</pre>
-                                        </div>
-                                        <div>
-                                            <div class="text-caption text-medium-emphasis mb-2">{{ t('history.after') }}</div>
-                                            <pre class="history-content">{{ version.content }}</pre>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                <v-alert v-else type="info" variant="tonal" density="comfortable">
-                                    {{ t('history.no_content_changes') }} {{ t('history.token_regenerated_note') }}
-                                </v-alert>
-                            </v-expansion-panel-text>
-                        </v-expansion-panel>
-                    </v-expansion-panels>
+                                <div class="text-caption mt-1">
+                                    {{ t('history.changed_by') }}: {{ version.creator?.name ?? '—' }}
+                                    <span v-if="version.created_at">· {{ formatDateTime(version.created_at) }}</span>
+                                </div>
+                            </div>
+                            <v-icon icon="mdi-open-in-new" size="18" />
+                        </button>
+                    </div>
                 </v-card>
             </v-col>
         </v-row>
@@ -267,6 +256,41 @@ const regenerateToken = () => {
                     </v-btn>
                     <v-btn color="secondary" variant="flat" rounded="lg" :loading="tokenForm.processing" @click="regenerateToken">
                         {{ t('environments.regenerate_token_confirm_action') }}
+                    </v-btn>
+                </div>
+            </div>
+        </Modal>
+
+        <Modal :show="selectedHistoryVersion !== null" max-width="xl" @close="closeHistoryDetailsModal">
+            <div v-if="selectedHistoryVersion" class="pa-6">
+                <div class="ops-kicker mb-2">{{ t('environments.history') }}</div>
+                <h2 class="text-h5 font-weight-black mb-2">{{ selectedHistoryVersion.summary }}</h2>
+                <div class="ops-muted mb-6">
+                    +{{ selectedHistoryVersion.added_lines }} {{ t('history.added') }},
+                    -{{ selectedHistoryVersion.removed_lines }} {{ t('history.removed') }}
+                    <span v-if="selectedHistoryVersion.created_at">· {{ formatDateTime(selectedHistoryVersion.created_at) }}</span>
+                </div>
+
+                <template v-if="selectedHistoryVersion.has_content_changes">
+                    <div class="history-detail-grid">
+                        <div>
+                            <div class="text-caption text-medium-emphasis mb-2">{{ t('history.before') }}</div>
+                            <pre class="history-content">{{ selectedHistoryVersion.previous_content || t('history.no_previous_content') }}</pre>
+                        </div>
+                        <div>
+                            <div class="text-caption text-medium-emphasis mb-2">{{ t('history.after') }}</div>
+                            <pre class="history-content">{{ selectedHistoryVersion.content }}</pre>
+                        </div>
+                    </div>
+                </template>
+
+                <v-alert v-else type="info" variant="tonal" density="comfortable">
+                    {{ t('history.no_content_changes') }} {{ t('history.token_regenerated_note') }}
+                </v-alert>
+
+                <div class="d-flex justify-end mt-6">
+                    <v-btn variant="text" rounded="lg" @click="closeHistoryDetailsModal">
+                        {{ t('profile.cancel') }}
                     </v-btn>
                 </div>
             </div>
@@ -340,8 +364,25 @@ const regenerateToken = () => {
     opacity: 1 !important;
 }
 
-.history-panel {
+.history-entry {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    color: inherit;
+    text-align: left;
     border: 1px solid rgba(15, 143, 114, 0.16);
+    border-radius: 0.85rem;
+    background: rgba(15, 143, 114, 0.04);
+    transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.history-entry:hover {
+    border-color: rgba(89, 243, 183, 0.34);
+    background: rgba(89, 243, 183, 0.08);
+    transform: translateY(-1px);
 }
 
 .history-detail-grid {
