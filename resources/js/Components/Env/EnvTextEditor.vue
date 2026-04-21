@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { EditorState } from '@codemirror/state';
-import { EditorView, keymap, lineNumbers } from '@codemirror/view';
+import { Decoration, type DecorationSet, EditorView, keymap, lineNumbers, MatchDecorator, ViewPlugin, type ViewUpdate } from '@codemirror/view';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -8,6 +8,28 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 const model = defineModel<string>({ required: true });
 const editorRoot = ref<HTMLElement | null>(null);
 let editor: EditorView | null = null;
+
+const envCommentMatcher = new MatchDecorator({
+    regexp: /^#.*/g,
+    decoration: Decoration.mark({ class: 'env-comment' }),
+});
+
+const envCommentHighlighter = ViewPlugin.fromClass(
+    class {
+        decorations: DecorationSet;
+
+        constructor(view: EditorView) {
+            this.decorations = envCommentMatcher.createDeco(view);
+        }
+
+        update(update: ViewUpdate) {
+            this.decorations = envCommentMatcher.updateDeco(update, this.decorations);
+        }
+    },
+    {
+        decorations: (value) => value.decorations,
+    },
+);
 
 onMounted(() => {
     if (!editorRoot.value) {
@@ -22,6 +44,7 @@ onMounted(() => {
                 lineNumbers(),
                 history(),
                 highlightSelectionMatches(),
+                envCommentHighlighter,
                 keymap.of([...defaultKeymap, ...historyKeymap, ...searchKeymap]),
                 EditorView.lineWrapping,
                 EditorView.updateListener.of((update) => {

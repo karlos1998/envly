@@ -101,6 +101,11 @@ body {
     caret-color: var(--envly-primary);
 }
 
+.env-editor .env-comment {
+    color: color-mix(in srgb, var(--envly-text) 42%, transparent);
+    font-style: italic;
+}
+
 .env-editor .cm-focused {
     outline: 2px solid color-mix(in srgb, var(--envly-primary) 30%, transparent);
     outline-offset: 0;
@@ -144,7 +149,33 @@ body {
 .auth-card .v-field__outline,
 .env-card .v-field__outline,
 .ops-card .v-field__outline {
-    display: none;
+    --v-field-border-width: 0;
+    --v-field-border-opacity: 0;
+}
+
+.auth-card .v-field__outline__start,
+.auth-card .v-field__outline__end,
+.auth-card .v-field__outline__notch::before,
+.auth-card .v-field__outline__notch::after,
+.env-card .v-field__outline__start,
+.env-card .v-field__outline__end,
+.env-card .v-field__outline__notch::before,
+.env-card .v-field__outline__notch::after,
+.ops-card .v-field__outline__start,
+.ops-card .v-field__outline__end,
+.ops-card .v-field__outline__notch::before,
+.ops-card .v-field__outline__notch::after {
+    border-color: transparent !important;
+}
+
+.auth-card .v-field--variant-outlined .v-label.v-field-label--floating,
+.env-card .v-field--variant-outlined .v-label.v-field-label--floating,
+.ops-card .v-field--variant-outlined .v-label.v-field-label--floating {
+    color: var(--envly-primary);
+    background: var(--envly-field-bg);
+    border-radius: 999px;
+    padding-inline: 6px;
+    opacity: 1;
 }
 
 .auth-card .v-field__input,
