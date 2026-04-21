@@ -98,6 +98,24 @@ body {
 .env-editor .cm-content {
     font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
     font-size: 14px;
+    caret-color: var(--envly-primary);
+}
+
+.env-editor .cm-focused {
+    outline: 2px solid color-mix(in srgb, var(--envly-primary) 30%, transparent);
+    outline-offset: 0;
+}
+
+.env-editor .cm-cursor,
+.env-editor .cm-dropCursor {
+    border-left-color: var(--envly-primary) !important;
+    border-left-width: 2px;
+}
+
+.env-editor .cm-selectionBackground,
+.env-editor .cm-focused .cm-selectionBackground,
+.env-editor .cm-content ::selection {
+    background: color-mix(in srgb, var(--envly-primary) 26%, transparent) !important;
 }
 
 .auth-card .v-field,
