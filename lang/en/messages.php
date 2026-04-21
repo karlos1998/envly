@@ -86,6 +86,7 @@ return [
         'create_mode' => 'Creation mode',
         'create_empty' => 'Empty environment',
         'create_from_existing' => 'Based on another',
+        'copy_source_toggle' => 'Create from another environment',
         'copy_source' => 'Source environment',
         'copy_source_hint' => 'The env content will be copied into the new environment.',
         'save' => 'Save env',

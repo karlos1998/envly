@@ -20,16 +20,16 @@ const activeEnvironment = computed<ProjectEnvironment | undefined>(() =>
 );
 
 const canDeleteEnvironment = computed(() => props.project.environments.length > 1);
-const environmentCreationModeOptions = computed(() => [
-    { title: t('environments.create_empty'), value: 'empty' },
-    { title: t('environments.create_from_existing'), value: 'copy' },
-]);
 const sourceEnvironmentOptions = computed(() =>
     props.project.environments.map((environment) => ({
         title: environment.name,
         value: environment.id,
     })),
 );
+const selectMenuProps = {
+    contained: true,
+    zIndex: 10000,
+};
 
 const contentForm = useForm({ content: activeEnvironment.value?.content ?? '' });
 const environmentForm = useForm<{
@@ -58,6 +58,13 @@ const apiUrl = computed(() => {
     }
 
     return `/api/env/${props.project.identifier}/${activeEnvironment.value.access_token}`;
+});
+
+const copyFromExisting = computed({
+    get: () => environmentForm.creation_mode === 'copy',
+    set: (shouldCopy: boolean) => {
+        environmentForm.creation_mode = shouldCopy ? 'copy' : 'empty';
+    },
 });
 
 watch(activeEnvironment, (environment) => {
@@ -429,12 +436,13 @@ const deleteConfirmationLabel = computed(() => {
                     @keyup.enter="createEnvironment"
                 />
 
-                <v-select
-                    v-model="environmentForm.creation_mode"
-                    :items="environmentCreationModeOptions"
-                    :label="t('environments.create_mode')"
+                <v-checkbox
+                    v-model="copyFromExisting"
+                    :label="t('environments.copy_source_toggle')"
                     :error-messages="environmentForm.errors.creation_mode"
-                    variant="outlined"
+                    color="primary"
+                    density="comfortable"
+                    hide-details="auto"
                 />
 
                 <v-select
@@ -444,6 +452,7 @@ const deleteConfirmationLabel = computed(() => {
                     :label="t('environments.copy_source')"
                     :hint="t('environments.copy_source_hint')"
                     :error-messages="environmentForm.errors.source_environment_id"
+                    :menu-props="selectMenuProps"
                     persistent-hint
                     variant="outlined"
                 />

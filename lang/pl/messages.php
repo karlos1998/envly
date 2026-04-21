@@ -86,6 +86,7 @@ return [
         'create_mode' => 'Sposób utworzenia',
         'create_empty' => 'Puste środowisko',
         'create_from_existing' => 'Na podstawie innego',
+        'copy_source_toggle' => 'Utwórz na podstawie innego środowiska',
         'copy_source' => 'Środowisko źródłowe',
         'copy_source_hint' => 'Zawartość env zostanie skopiowana do nowego środowiska.',
         'save' => 'Zapisz env',
