@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { useTranslations } from '@/composables/useTranslations';
 
 const props = defineProps<{
     status?: string;
 }>();
 
 const form = useForm({});
+const { t } = useTranslations();
 
 const submit = () => {
     form.post(route('verification.send'));
@@ -21,39 +22,93 @@ const verificationLinkSent = computed(
 
 <template>
     <GuestLayout>
-        <Head title="Email Verification" />
+        <Head :title="t('auth.verify_email_title')" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your
-            email address by clicking on the link we just emailed to you? If you
-            didn't receive the email, we will gladly send you another.
+        <div class="verify-email-header mb-8">
+            <div class="ops-kicker mb-2">AUTH / EMAIL</div>
+            <h2 class="verify-email-title mb-3">{{ t('auth.verify_email_title') }}</h2>
+            <p class="verify-email-copy mb-0">
+                {{ t('auth.verify_email_intro') }}
+            </p>
         </div>
 
         <div
-            class="mb-4 text-sm font-medium text-green-600"
+            class="mb-5"
             v-if="verificationLinkSent"
         >
-            A new verification link has been sent to the email address you
-            provided during registration.
+            <v-alert color="success" density="comfortable" variant="tonal">
+                {{ t('auth.verify_email_sent') }}
+            </v-alert>
         </div>
 
         <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
-                <PrimaryButton
-                    :class="{ 'opacity-25': form.processing }"
+            <div class="verify-email-actions d-flex flex-column ga-3">
+                <v-btn
+                    type="submit"
+                    color="primary"
+                    size="large"
+                    rounded="xl"
+                    :loading="form.processing"
                     :disabled="form.processing"
+                    block
                 >
-                    Resend Verification Email
-                </PrimaryButton>
+                    {{ t('auth.resend_verification_email') }}
+                </v-btn>
 
                 <Link
                     :href="route('logout')"
                     method="post"
                     as="button"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >Log Out</Link
+                    class="verify-email-logout text-decoration-none"
                 >
+                    {{ t('nav.logout') }}
+                </Link>
             </div>
         </form>
     </GuestLayout>
 </template>
+
+<style scoped>
+.verify-email-header {
+    max-width: 460px;
+}
+
+.verify-email-title {
+    color: var(--envly-text);
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+}
+
+.verify-email-copy {
+    color: color-mix(in srgb, var(--envly-text) 84%, transparent);
+    font-size: 17px;
+    line-height: 1.7;
+    letter-spacing: -0.015em;
+}
+
+.verify-email-actions {
+    max-width: 420px;
+}
+
+.verify-email-logout {
+    align-self: center;
+    color: color-mix(in srgb, var(--envly-text) 78%, transparent);
+    font-size: 15px;
+    font-weight: 700;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.verify-email-logout:hover {
+    color: var(--envly-primary);
+    opacity: 1;
+}
+
+@media (max-width: 600px) {
+    .verify-email-copy {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+}
+</style>

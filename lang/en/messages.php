@@ -98,6 +98,10 @@ return [
         'login_with_github' => 'Continue with GitHub',
         'register_with_github' => 'Sign up with GitHub',
         'passkey_login_failed' => 'Passkey login failed.',
+        'verify_email_title' => 'Email verification',
+        'verify_email_intro' => 'Check your inbox and click the verification link we just sent. If the message did not arrive, resend it below.',
+        'verify_email_sent' => 'A new verification link has been sent to the email address provided during registration.',
+        'resend_verification_email' => 'Resend verification email',
     ],
     'theme' => [
         'label' => 'Theme',

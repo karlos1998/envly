@@ -98,6 +98,10 @@ return [
         'login_with_github' => 'Kontynuuj z GitHub',
         'register_with_github' => 'Załóż konto z GitHub',
         'passkey_login_failed' => 'Logowanie passkey nie powiodło się.',
+        'verify_email_title' => 'Weryfikacja adresu email',
+        'verify_email_intro' => 'Sprawdź skrzynkę i kliknij link weryfikacyjny, który właśnie wysłaliśmy. Jeśli wiadomość nie dotarła, wyślij ją ponownie.',
+        'verify_email_sent' => 'Nowy link weryfikacyjny został wysłany na adres podany podczas rejestracji.',
+        'resend_verification_email' => 'Wyślij email weryfikacyjny ponownie',
     ],
     'theme' => [
         'label' => 'Motyw',
