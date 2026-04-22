@@ -9,11 +9,16 @@ use App\Http\Requests\Environment\UpdateEnvironmentRequest;
 use App\Models\Project;
 use App\Models\ProjectEnvironment;
 use App\Services\EnvironmentService;
+use App\Services\GithubDeploymentService;
 use Illuminate\Http\RedirectResponse;
+use RuntimeException;
 
 class EnvironmentController extends Controller
 {
-    public function __construct(private EnvironmentService $service) {}
+    public function __construct(
+        private EnvironmentService $service,
+        private GithubDeploymentService $github,
+    ) {}
 
     public function store(StoreEnvironmentRequest $request, Project $project): RedirectResponse
     {
@@ -61,5 +66,37 @@ class EnvironmentController extends Controller
         $this->service->delete($project, $environment, $request->user());
 
         return back()->with('success', __('messages.flash.environment_deleted'));
+    }
+
+    public function syncGithubSecret(Project $project, ProjectEnvironment $environment): RedirectResponse
+    {
+        abort_unless($environment->project_id === $project->id, 404);
+
+        $this->authorize('update', $environment);
+
+        if (! $project->github_repository_full_name) {
+            return back()->with('error', __('messages.flash.github_project_not_configured'));
+        }
+
+        $githubAccount = request()->user()->githubAccount()->first();
+
+        if ($githubAccount === null) {
+            return back()->with('error', __('messages.flash.github_not_connected'));
+        }
+
+        try {
+            $this->github->upsertRepositorySecret(
+                account: $githubAccount,
+                repositoryFullName: $project->github_repository_full_name,
+                secretName: 'ENVLY_TOKEN',
+                secretValue: $environment->access_token,
+            );
+        } catch (RuntimeException $exception) {
+            return back()->with('error', __('messages.flash.github_secret_update_failed_with_details', [
+                'details' => $exception->getMessage(),
+            ]));
+        }
+
+        return back()->with('success', __('messages.flash.github_secret_updated'));
     }
 }

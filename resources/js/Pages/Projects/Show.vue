@@ -50,10 +50,12 @@ const environmentForm = useForm<{
 const tokenForm = useForm({ current_password: '' });
 const deleteEnvironmentForm = useForm({ name: '' });
 const deployForm = useForm({});
+const githubSecretForm = useForm({});
 const creatingEnvironment = ref(false);
 const confirmingTokenRegeneration = ref(false);
 const confirmingEnvironmentDeletion = ref(false);
 const showingUsageExamples = ref(false);
+const confirmingGithubSecretSync = ref(false);
 const selectedHistoryVersion = ref<EnvironmentVersion | null>(null);
 const selectedEnvironmentForDeletion = ref<ProjectEnvironment | null>(null);
 const tokenPasswordInput = ref<{ focus: () => void } | null>(null);
@@ -61,6 +63,9 @@ const environmentNameInput = ref<{ focus: () => void } | null>(null);
 const deleteEnvironmentNameInput = ref<{ focus: () => void } | null>(null);
 const canRunGithubDeploy = computed(
     () => props.github.connected && !!props.project.github_repository_full_name && !!props.project.github_workflow_id,
+);
+const canSuggestGithubSecretSync = computed(
+    () => props.github.connected && !!props.project.github_repository_full_name && !!activeEnvironment.value,
 );
 
 const apiUrl = computed(() => {
@@ -209,6 +214,14 @@ const closeRegenerateTokenModal = () => {
     tokenForm.reset();
 };
 
+const openGithubSecretSyncModal = () => {
+    confirmingGithubSecretSync.value = true;
+};
+
+const closeGithubSecretSyncModal = () => {
+    confirmingGithubSecretSync.value = false;
+};
+
 const openUsageExamplesModal = () => {
     showingUsageExamples.value = true;
 };
@@ -220,6 +233,17 @@ const closeUsageExamplesModal = () => {
 const runGithubDeploy = () => {
     deployForm.post(route('projects.github.deploy', props.project.identifier), {
         preserveScroll: true,
+    });
+};
+
+const syncGithubSecret = () => {
+    if (!activeEnvironment.value) {
+        return;
+    }
+
+    githubSecretForm.post(route('projects.environments.github_secret', [props.project.identifier, activeEnvironment.value.id]), {
+        preserveScroll: true,
+        onSuccess: () => closeGithubSecretSyncModal(),
     });
 };
 
@@ -238,7 +262,13 @@ const regenerateToken = () => {
 
     tokenForm.post(route('projects.environments.token', [props.project.identifier, activeEnvironment.value.id]), {
         preserveScroll: true,
-        onSuccess: () => closeRegenerateTokenModal(),
+        onSuccess: () => {
+            closeRegenerateTokenModal();
+
+            if (canSuggestGithubSecretSync.value) {
+                openGithubSecretSyncModal();
+            }
+        },
         onError: () => tokenPasswordInput.value?.focus(),
         onFinish: () => tokenForm.reset('current_password'),
     });
@@ -540,6 +570,26 @@ const deleteConfirmationLabel = computed(() => {
                 <div class="d-flex justify-end mt-6">
                     <v-btn variant="text" rounded="lg" @click="closeUsageExamplesModal">
                         {{ t('profile.cancel') }}
+                    </v-btn>
+                </div>
+            </div>
+        </Modal>
+
+        <Modal :show="confirmingGithubSecretSync" max-width="md" @close="closeGithubSecretSyncModal">
+            <div class="pa-6">
+                <div class="ops-kicker mb-2">GITHUB / SECRETS</div>
+                <h2 class="text-h5 font-weight-black mb-2">{{ t('environments.sync_github_secret_title') }}</h2>
+                <p class="ops-muted mb-2">{{ t('environments.sync_github_secret_body') }}</p>
+                <p class="text-caption text-medium-emphasis mb-6">
+                    {{ project.github_repository_full_name }} · ENVLY_TOKEN
+                </p>
+
+                <div class="d-flex justify-end ga-3 mt-2">
+                    <v-btn variant="text" rounded="lg" @click="closeGithubSecretSyncModal">
+                        {{ t('profile.cancel') }}
+                    </v-btn>
+                    <v-btn class="env-action-btn" variant="flat" rounded="lg" :loading="githubSecretForm.processing" @click="syncGithubSecret">
+                        {{ t('environments.sync_github_secret_action') }}
                     </v-btn>
                 </div>
             </div>

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\SocialAccount;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -189,6 +190,87 @@ class GithubDeploymentService
         if ($response->status() !== 204) {
             throw new RuntimeException('Could not start GitHub deployment workflow.');
         }
+    }
+
+    public function upsertRepositorySecret(SocialAccount $account, string $repositoryFullName, string $secretName, string $secretValue): void
+    {
+        $publicKeyResponse = $this->client($account)->get('/repos/'.ltrim($repositoryFullName, '/').'/actions/secrets/public-key');
+
+        if ($publicKeyResponse->failed()) {
+            $this->throwGithubApiException($publicKeyResponse, 'Could not load GitHub repository secret public key');
+        }
+
+        /** @var array<string, mixed> $publicKeyPayload */
+        $publicKeyPayload = $publicKeyResponse->json();
+        $keyId = $publicKeyPayload['key_id'] ?? null;
+        $publicKey = $publicKeyPayload['key'] ?? null;
+
+        if (! is_string($keyId) || ! is_string($publicKey) || $keyId === '' || $publicKey === '') {
+            throw new RuntimeException('GitHub repository secret public key is invalid.');
+        }
+
+        if (! function_exists('sodium_crypto_box_seal')) {
+            throw new RuntimeException('Libsodium extension is required to encrypt GitHub secrets.');
+        }
+
+        $decodedPublicKey = base64_decode($publicKey, true);
+
+        if ($decodedPublicKey === false) {
+            throw new RuntimeException('GitHub repository secret public key cannot be decoded.');
+        }
+
+        $encryptedValue = base64_encode(sodium_crypto_box_seal($secretValue, $decodedPublicKey));
+
+        $secretResponse = $this->client($account)->put(
+            '/repos/'.ltrim($repositoryFullName, '/').'/actions/secrets/'.$secretName,
+            [
+                'encrypted_value' => $encryptedValue,
+                'key_id' => $keyId,
+            ],
+        );
+
+        if (! in_array($secretResponse->status(), [201, 204], true)) {
+            $this->throwGithubApiException($secretResponse, 'Could not update GitHub repository secret');
+        }
+    }
+
+    private function throwGithubApiException(Response $response, string $prefix): never
+    {
+        /** @var array<string, mixed>|null $payload */
+        $payload = $response->json();
+        $githubMessage = is_array($payload) && is_string($payload['message'] ?? null)
+            ? $payload['message']
+            : 'Unknown GitHub API error';
+        $githubErrors = is_array($payload) && array_key_exists('errors', $payload)
+            ? json_encode($payload['errors'])
+            : null;
+        $detailsParts = [$githubMessage];
+
+        if ($githubErrors) {
+            $detailsParts[] = 'errors='.$githubErrors;
+        }
+
+        $acceptedPermissions = $response->header('x-accepted-github-permissions');
+
+        if (is_string($acceptedPermissions) && $acceptedPermissions !== '') {
+            $detailsParts[] = 'accepted_permissions='.$acceptedPermissions;
+        }
+
+        $oauthScopes = $response->header('x-oauth-scopes');
+
+        if (is_string($oauthScopes) && $oauthScopes !== '') {
+            $detailsParts[] = 'oauth_scopes='.$oauthScopes;
+        }
+
+        $requestId = $response->header('x-github-request-id');
+
+        if (is_string($requestId) && $requestId !== '') {
+            $detailsParts[] = 'request_id='.$requestId;
+        }
+
+        $details = implode('; ', $detailsParts);
+
+        throw new RuntimeException(sprintf('%s (HTTP %d): %s', $prefix, $response->status(), $details));
     }
 
     private function client(SocialAccount $account): PendingRequest

@@ -19,6 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
     Route::put('projects/{project}/environments/{environment}', [EnvironmentController::class, 'update'])->name('projects.environments.update');
     Route::delete('projects/{project}/environments/{environment}', [EnvironmentController::class, 'destroy'])->name('projects.environments.destroy');
     Route::post('projects/{project}/environments/{environment}/token', [EnvironmentController::class, 'regenerateToken'])->name('projects.environments.token');
+    Route::post('projects/{project}/environments/{environment}/github-secret', [EnvironmentController::class, 'syncGithubSecret'])->name('projects.environments.github_secret');
     Route::get('projects/{project}/github', [ProjectGithubDeploymentController::class, 'edit'])->name('projects.github.edit');
     Route::get('projects/{project}/github/repositories', [ProjectGithubDeploymentController::class, 'repositories'])->name('projects.github.repositories');
     Route::get('projects/{project}/github/workflows', [ProjectGithubDeploymentController::class, 'workflows'])->name('projects.github.workflows');

@@ -450,3 +450,45 @@ it('dispatches selected github workflow for configured project deployment', func
             && $request->method() === 'POST';
     });
 });
+
+it('updates github repository secret for current environment token', function () {
+    if (! function_exists('sodium_crypto_box_publickey')) {
+        $this->markTestSkipped('Libsodium extension is required.');
+    }
+
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create([
+        'github_repository_full_name' => 'acme/envly-app',
+    ]);
+    $environment = ProjectEnvironment::factory()->for($project)->create([
+        'access_token' => 'new-env-token',
+    ]);
+    $user->socialAccounts()->create([
+        'provider' => 'github',
+        'provider_user_id' => '12345',
+        'access_token' => 'github-token',
+    ]);
+
+    $keyPair = sodium_crypto_box_keypair();
+    $publicKey = sodium_crypto_box_publickey($keyPair);
+
+    Http::fake([
+        'https://api.github.com/repos/acme/envly-app/actions/secrets/public-key' => Http::response([
+            'key_id' => 'test-key-id',
+            'key' => base64_encode($publicKey),
+        ], 200),
+        'https://api.github.com/repos/acme/envly-app/actions/secrets/ENVLY_TOKEN' => Http::response('', 201),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('projects.environments.github_secret', [$project, $environment]))
+        ->assertRedirect();
+
+    Http::assertSent(function ($request): bool {
+        return $request->method() === 'PUT'
+            && $request->url() === 'https://api.github.com/repos/acme/envly-app/actions/secrets/ENVLY_TOKEN'
+            && $request['key_id'] === 'test-key-id'
+            && is_string($request['encrypted_value'])
+            && $request['encrypted_value'] !== '';
+    });
+});

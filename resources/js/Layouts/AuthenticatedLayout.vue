@@ -68,7 +68,7 @@ watch(
             :color="toast.color"
             location="top right"
             rounded="lg"
-            timeout="3200"
+            :timeout="toast.color === 'error' ? 5000 : 3200"
             variant="flat"
             class="ops-toast"
         >
