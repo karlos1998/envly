@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppFooter from '@/Components/AppFooter.vue';
 import AppLogo from '@/Components/AppLogo.vue';
 import ThemeModeSwitch from '@/Components/ThemeModeSwitch.vue';
 import { useTranslations } from '@/composables/useTranslations';
@@ -58,6 +59,7 @@ watch(
         <v-main class="ops-main">
             <v-container class="py-8" max-width="1320">
                 <slot />
+                <AppFooter />
             </v-container>
         </v-main>
 

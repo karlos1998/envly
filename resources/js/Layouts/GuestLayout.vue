@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppFooter from '@/Components/AppFooter.vue';
 import AppLogo from '@/Components/AppLogo.vue';
 import ThemeModeSwitch from '@/Components/ThemeModeSwitch.vue';
 import { useTranslations } from '@/composables/useTranslations';
@@ -60,6 +61,8 @@ const canLogin = computed(() => !page.props.auth.user);
                         <slot />
                     </v-card>
                 </section>
+
+                <AppFooter />
             </v-container>
         </v-main>
     </v-app>

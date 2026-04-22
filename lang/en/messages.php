@@ -6,6 +6,78 @@ return [
         'tagline' => 'Beautiful environment management for teams that ship.',
         'language' => 'Language',
     ],
+    'landing' => [
+        'seo' => [
+            'title' => 'Envly | Environment Management for Teams',
+            'description' => 'Envly helps teams manage .env files with history, secure access tokens, and CI-ready endpoints for Laravel and modern app deployments.',
+            'keywords' => 'environment variables management, .env manager, Laravel environment management, CI secrets, deployment configuration',
+        ],
+        'hero' => [
+            'kicker' => 'ENVIRONMENTS / HISTORY / DEPLOYMENT',
+            'title' => 'Production-safe environment management for teams that ship fast.',
+            'body' => 'Centralize your .env files, track every change, and expose secure API endpoints for CI pipelines. Envly is built for teams running Laravel, Node, and modern cloud deployments.',
+            'primary_cta' => 'Create workspace',
+            'secondary_cta' => 'Sign in',
+            'note' => 'No credit card. Setup in minutes. Built for operational clarity.',
+        ],
+        'metrics' => [
+            'one' => [
+                'label' => 'Versioned Changes',
+                'value' => 'Full env history with diffs',
+            ],
+            'two' => [
+                'label' => 'Secure Delivery',
+                'value' => 'Tokenized plain-text API for CI',
+            ],
+            'three' => [
+                'label' => 'Team Workflow',
+                'value' => 'Project-based structure with audit trail',
+            ],
+        ],
+        'seo_section' => [
+            'title' => 'Why teams choose Envly for environment variable management',
+            'body' => 'Most teams still manage environment variables across scattered files, chat messages, and ad-hoc scripts. Envly gives you one source of truth for configuration, with a clean workflow for creating, editing, and exporting environment data.',
+        ],
+        'features' => [
+            'one' => [
+                'title' => 'Centralized .env management',
+                'body' => 'Store all project environments in one secure panel with searchable structure and explicit project identifiers.',
+            ],
+            'two' => [
+                'title' => 'Deployment-ready API endpoints',
+                'body' => 'Use dedicated access tokens to fetch environment content directly in GitHub Actions and CI/CD pipelines.',
+            ],
+            'three' => [
+                'title' => 'Audit-friendly version history',
+                'body' => 'Track exactly what changed, who changed it, and when with before/after context for safer operations.',
+            ],
+            'four' => [
+                'title' => 'Security-first access flow',
+                'body' => 'Protect sensitive actions with strong account controls, passkeys, and explicit regeneration paths.',
+            ],
+        ],
+        'workflow' => [
+            'title' => 'How it works',
+            'one' => [
+                'title' => 'Create project space',
+                'body' => 'Start with a project and a default environment, then scale to staging, preview, and production variants.',
+            ],
+            'two' => [
+                'title' => 'Manage env values safely',
+                'body' => 'Edit in text or structured rows, keep clean formatting, and avoid accidental drift between environments.',
+            ],
+            'three' => [
+                'title' => 'Deploy through CI',
+                'body' => 'Fetch current environment files programmatically from CI using scoped tokens and controlled endpoints.',
+            ],
+        ],
+        'cta' => [
+            'title' => 'Build reliable deploy workflows around clean environment data.',
+            'body' => 'Give your team one dependable control plane for runtime configuration.',
+            'primary' => 'Start for free',
+            'secondary' => 'I already have an account',
+        ],
+    ],
     'nav' => [
         'projects' => 'Projects',
         'profile' => 'Profile',

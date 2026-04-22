@@ -3,8 +3,11 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vue-tsc && vite build",
-        "dev": "vite"
+        "build": "vue-tsc && vite build && vite build --ssr",
+        "build:client": "vue-tsc && vite build",
+        "build:ssr": "vite build --ssr",
+        "dev": "vite",
+        "ssr": "php artisan inertia:start-ssr"
     },
     "devDependencies": {
         "@inertiajs/vue3": "^2.0.0",

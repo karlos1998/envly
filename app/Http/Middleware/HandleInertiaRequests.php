@@ -6,6 +6,7 @@ use App\Enums\Locale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Lang;
 use Inertia\Middleware;
+use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -36,6 +37,10 @@ class HandleInertiaRequests extends Middleware
                 'label' => $locale->label(),
             ])->values()->all(),
             'translations' => Lang::get('messages'),
+            'ziggy' => fn (): array => [
+                ...(new Ziggy)->toArray(),
+                'location' => $request->url(),
+            ],
         ];
     }
 }

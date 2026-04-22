@@ -6,6 +6,78 @@ return [
         'tagline' => 'Ładne zarządzanie envami dla projektów, które dowożą.',
         'language' => 'Język',
     ],
+    'landing' => [
+        'seo' => [
+            'title' => 'Envly | Zarządzanie środowiskami dla zespołów',
+            'description' => 'Envly pomaga zespołom zarządzać plikami .env z historią zmian, bezpiecznymi tokenami dostępu i endpointami gotowymi pod CI dla Laravel i nowoczesnych wdrożeń.',
+            'keywords' => 'zarządzanie zmiennymi środowiskowymi, manager .env, Laravel environment management, sekrety CI, konfiguracja wdrożeń',
+        ],
+        'hero' => [
+            'kicker' => 'ŚRODOWISKA / HISTORIA / WDROŻENIA',
+            'title' => 'Bezpieczne zarządzanie środowiskami dla zespołów, które dowożą szybko.',
+            'body' => 'Zbierz wszystkie pliki .env w jednym miejscu, śledź każdą zmianę i udostępniaj bezpieczne endpointy API do pipelineów CI. Envly jest stworzone dla zespołów pracujących z Laravel, Node i nowoczesną chmurą.',
+            'primary_cta' => 'Utwórz workspace',
+            'secondary_cta' => 'Zaloguj się',
+            'note' => 'Bez karty. Start w kilka minut. Maksymalna klarowność operacyjna.',
+        ],
+        'metrics' => [
+            'one' => [
+                'label' => 'Wersjonowane zmiany',
+                'value' => 'Pełna historia env z diffami',
+            ],
+            'two' => [
+                'label' => 'Bezpieczna dostawa',
+                'value' => 'Tokenizowane plain-text API do CI',
+            ],
+            'three' => [
+                'label' => 'Workflow zespołu',
+                'value' => 'Struktura per projekt + audit trail',
+            ],
+        ],
+        'seo_section' => [
+            'title' => 'Dlaczego zespoły wybierają Envly do zarządzania zmiennymi środowiskowymi',
+            'body' => 'Wiele zespołów nadal trzyma zmienne środowiskowe w rozproszonych plikach, czatach i ad-hoc skryptach. Envly daje jedno źródło prawdy dla konfiguracji i czysty workflow tworzenia, edycji oraz eksportu danych środowiskowych.',
+        ],
+        'features' => [
+            'one' => [
+                'title' => 'Centralne zarządzanie .env',
+                'body' => 'Trzymaj wszystkie środowiska projektu w jednym bezpiecznym panelu z wyszukiwaniem i jednoznacznymi identyfikatorami projektów.',
+            ],
+            'two' => [
+                'title' => 'Endpointy API gotowe pod deployment',
+                'body' => 'Używaj dedykowanych tokenów dostępu do pobierania env bezpośrednio w GitHub Actions i pipelineach CI/CD.',
+            ],
+            'three' => [
+                'title' => 'Historia zmian przyjazna auditowi',
+                'body' => 'Widzisz dokładnie co się zmieniło, kto to zmienił i kiedy, wraz z kontekstem before/after dla bezpieczniejszych operacji.',
+            ],
+            'four' => [
+                'title' => 'Dostęp z naciskiem na bezpieczeństwo',
+                'body' => 'Chroń wrażliwe akcje mocną kontrolą konta, passkeys i jawnymi ścieżkami regeneracji tokenów.',
+            ],
+        ],
+        'workflow' => [
+            'title' => 'Jak to działa',
+            'one' => [
+                'title' => 'Utwórz przestrzeń projektu',
+                'body' => 'Zacznij od projektu i domyślnego środowiska, potem skaluj do wariantów staging, preview i production.',
+            ],
+            'two' => [
+                'title' => 'Bezpiecznie zarządzaj wartościami env',
+                'body' => 'Edytuj w trybie tekstowym lub wierszowym, utrzymuj spójny format i unikaj dryfu między środowiskami.',
+            ],
+            'three' => [
+                'title' => 'Wdrażaj przez CI',
+                'body' => 'Pobieraj aktualne pliki środowiskowe programowo z CI dzięki zakresowanym tokenom i kontrolowanym endpointom.',
+            ],
+        ],
+        'cta' => [
+            'title' => 'Buduj niezawodne wdrożenia na czystych danych środowiskowych.',
+            'body' => 'Daj zespołowi jedno pewne centrum kontroli konfiguracji runtime.',
+            'primary' => 'Zacznij za darmo',
+            'secondary' => 'Mam już konto',
+        ],
+    ],
     'nav' => [
         'projects' => 'Projekty',
         'profile' => 'Profil',
