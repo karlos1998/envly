@@ -7,64 +7,78 @@ Create your GitHub App here:
 
 ## PL
 
-### Cel integracji
-Envly łączy środowiska (env) z repozytoriami użytkownika na GitHub i umożliwia automatyczne wdrożenia (deploy) przez Actions/Deployments.
+### Co jest potrzebne w Envly
+Envly używa GitHub API do:
+- listy repozytoriów użytkownika,
+- listy workflow,
+- uruchamiania workflow (`workflow_dispatch`),
+- aktualizacji secretu repozytorium `ENVLY_TOKEN`.
 
-### Rekomendowany zestaw startowy (minimum sensowne)
-- `Repository permissions -> Metadata: Read-only`  
-  Wymagane jako bazowy odczyt informacji o repozytorium i instalacji.
-- `Repository permissions -> Actions: Read and write`  
-  Wymagane do uruchamiania workflow (np. `workflow_dispatch`) z poziomu API.
-- `Repository permissions -> Contents: Read-only`  
-  Wystarcza do odczytu repozytorium. `Write` tylko jeśli aplikacja ma modyfikować pliki/commity.
-- `Repository permissions -> Deployments: Read and write`  
-  Wymagane, jeśli aplikacja tworzy deploymenty lub aktualizuje ich status.
+### Minimalny zestaw pod aktualny flow
+`Repository permissions`:
+- `Metadata: Read-only`
+- `Actions: Read and write`
+- `Secrets: Read and write`
 
-### Opcjonalne uprawnienia (włączaj tylko gdy potrzebne)
-- `Repository permissions -> Secrets: Read and write`  
-  Tylko jeśli Envly ma ustawiać sekrety repozytorium dla GitHub Actions.
-- `Repository permissions -> Variables: Read and write`  
-  Tylko jeśli Envly ma zarządzać zmiennymi Actions/Repository Variables.
-- `Repository permissions -> Workflows: Read and write`  
-  Tylko jeśli Envly ma edytować pliki workflow w `.github/workflows`.
+To jest praktyczne minimum dla funkcji deploy + sync secret.
 
-### Bezpieczna konfiguracja instalacji
-- Na start wybieraj instalację na `Only selected repositories`.
-- Nie przyznawaj `Administration`, jeśli nie ma konkretnej, wymaganej funkcji.
-- Stosuj zasadę najmniejszych uprawnień i rozszerzaj zakres dopiero przy realnej potrzebie funkcjonalnej.
+### Opcjonalne (na przyszłość)
+- `Contents: Read-only` (gdy chcesz czytać pliki repo przez API)
+- `Deployments: Read and write` (gdy chcesz zarządzać deployment status)
+- `Variables: Read and write` (gdy chcesz zarządzać Actions/Repo Variables)
+- `Workflows: Read and write` (gdy chcesz modyfikować pliki `.github/workflows`)
 
-### Proponowany preset v1
-`Metadata (RO) + Actions (RW) + Contents (RO) + Deployments (RW)`
+### Ważne: instalacja App na repozytorium
+Najczęstszy błąd 403 `Resource not accessible by integration` oznacza, że App nie ma dostępu do wybranego repo.
+
+Sprawdź:
+1. `Install App` / `Configure` dla właściwego ownera (user/org).
+2. `Repository access`:
+- testowo: `All repositories`,
+- docelowo: `Only select repositories` i ręcznie zaznaczone repo.
+3. Po zmianie permissions wykonaj ponowną akceptację/aktualizację instalacji.
+4. W Envly po zmianach przepnij integrację i wybierz repo + workflow ponownie.
+
+### Bezpieczeństwo
+- Zasada najmniejszych uprawnień: zaczynaj od minimum i rozszerzaj tylko gdy funkcja tego wymaga.
+- Nie nadawaj `Administration`, jeśli nie jest bezwzględnie potrzebne.
 
 ---
 
 ## EN
 
-### Integration goal
-Envly connects environments (env) with user GitHub repositories and enables automated deployments via Actions/Deployments.
+### What Envly needs
+Envly uses GitHub API for:
+- listing user repositories,
+- listing workflows,
+- triggering workflow runs (`workflow_dispatch`),
+- updating repository secret `ENVLY_TOKEN`.
 
-### Recommended starter set (practical minimum)
-- `Repository permissions -> Metadata: Read-only`  
-  Required baseline access for repository and installation metadata.
-- `Repository permissions -> Actions: Read and write`  
-  Required to trigger workflows (for example `workflow_dispatch`) through the API.
-- `Repository permissions -> Contents: Read-only`  
-  Enough for repository reads. Use `Write` only if the app must modify files/commits.
-- `Repository permissions -> Deployments: Read and write`  
-  Required if the app creates deployments or updates deployment statuses.
+### Minimal set for current flow
+`Repository permissions`:
+- `Metadata: Read-only`
+- `Actions: Read and write`
+- `Secrets: Read and write`
 
-### Optional permissions (enable only when needed)
-- `Repository permissions -> Secrets: Read and write`  
-  Only if Envly should manage repository secrets for GitHub Actions.
-- `Repository permissions -> Variables: Read and write`  
-  Only if Envly should manage Actions/Repository variables.
-- `Repository permissions -> Workflows: Read and write`  
-  Only if Envly should edit workflow files in `.github/workflows`.
+This is the practical minimum for deploy + secret sync.
 
-### Safe installation setup
-- Start with `Only selected repositories` installation scope.
-- Do not grant `Administration` unless a concrete feature explicitly requires it.
-- Follow least privilege and expand permissions only when functionality demands it.
+### Optional (future use)
+- `Contents: Read-only` (if you need to read repository files via API)
+- `Deployments: Read and write` (if you need deployment status updates)
+- `Variables: Read and write` (if you need Actions/Repo Variables management)
+- `Workflows: Read and write` (if you need to edit `.github/workflows` files)
 
-### Suggested v1 preset
-`Metadata (RO) + Actions (RW) + Contents (RO) + Deployments (RW)`
+### Important: App installation on repository
+Most common reason for 403 `Resource not accessible by integration`: the App is not installed for the selected repository.
+
+Check:
+1. `Install App` / `Configure` on the correct owner (user/org).
+2. `Repository access`:
+- for testing: `All repositories`,
+- for production: `Only select repositories` and explicitly selected repo.
+3. After permission changes, re-approve/update the installation.
+4. In Envly, reconnect integration and select repository + workflow again.
+
+### Security
+- Follow least privilege: start minimal and expand only when feature requirements demand it.
+- Do not grant `Administration` unless absolutely required.
