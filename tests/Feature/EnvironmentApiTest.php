@@ -15,7 +15,9 @@ it('returns plain text env content for a valid project identifier and environmen
         'access_token_hash' => $tokenService->hash($token),
     ]);
 
-    $this->get('/api/env/client-app/'.$token)
+    $this->withHeaders([
+        'Authorization' => 'Bearer '.$token,
+    ])->get('/api/env/client-app')
         ->assertSuccessful()
         ->assertHeader('Content-Type', 'text/plain; charset=UTF-8')
         ->assertSeeText("APP_NAME=Client\nAPP_ENV=production\n");
@@ -27,5 +29,14 @@ it('does not leak env content for an invalid token', function () {
     $project = Project::factory()->for(User::factory())->create(['identifier' => 'client-app']);
     ProjectEnvironment::factory()->for($project)->create(['content' => 'SECRET=value']);
 
-    $this->get('/api/env/client-app/wrong-token')->assertNotFound();
+    $this->withHeaders([
+        'Authorization' => 'Bearer wrong-token',
+    ])->get('/api/env/client-app')->assertNotFound();
+});
+
+it('does not return env content when bearer token is missing', function () {
+    $project = Project::factory()->for(User::factory())->create(['identifier' => 'client-app']);
+    ProjectEnvironment::factory()->for($project)->create(['content' => 'SECRET=value']);
+
+    $this->get('/api/env/client-app')->assertNotFound();
 });

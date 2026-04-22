@@ -158,7 +158,7 @@ return [
         'create' => 'Create project',
         'delete' => 'Delete project',
         'open' => 'Open',
-        'api_hint' => 'Fetch this environment as plain text from GitHub Actions or CI.',
+        'api_hint' => 'Fetch this environment as plain text via API using a Bearer token.',
     ],
     'env_templates' => [
         'laravel' => [
@@ -197,6 +197,10 @@ return [
         'history' => 'History',
         'lines' => 'lines',
         'api_url' => 'API URL',
+        'token_security_hint' => 'The token is not part of the URL. Send it only in the Authorization header as a Bearer token.',
+        'usage_examples' => 'Usage examples',
+        'example_curl' => 'curl (local / CI)',
+        'example_github_actions' => 'GitHub Actions',
         'regenerate_token_confirm_title' => 'Confirm token regeneration',
         'regenerate_token_confirm_body' => 'This is a sensitive action. Enter your current account password to generate a new access token.',
         'regenerate_token_confirm_action' => 'Generate token',

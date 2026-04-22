@@ -47,6 +47,7 @@ const deleteEnvironmentForm = useForm({ name: '' });
 const creatingEnvironment = ref(false);
 const confirmingTokenRegeneration = ref(false);
 const confirmingEnvironmentDeletion = ref(false);
+const showingUsageExamples = ref(false);
 const selectedHistoryVersion = ref<EnvironmentVersion | null>(null);
 const selectedEnvironmentForDeletion = ref<ProjectEnvironment | null>(null);
 const tokenPasswordInput = ref<{ focus: () => void } | null>(null);
@@ -58,7 +59,37 @@ const apiUrl = computed(() => {
         return '';
     }
 
-    return `/api/env/${props.project.identifier}/${activeEnvironment.value.access_token}`;
+    return route('api.env.show', { projectIdentifier: props.project.identifier });
+});
+
+const curlExample = computed(() => {
+    if (!activeEnvironment.value) {
+        return '';
+    }
+
+    return [
+        'curl -fsSL \\',
+        `  -H "Authorization: Bearer ${activeEnvironment.value.access_token}" \\`,
+        `  "${apiUrl.value}"`,
+    ].join('\n');
+});
+
+const githubActionsExample = computed(() => {
+    if (!activeEnvironment.value) {
+        return '';
+    }
+
+    return [
+        'steps:',
+        '  - name: Download environment from Envly',
+        '    env:',
+        `      ENVLY_API_URL: "${apiUrl.value}"`,
+        '      ENVLY_TOKEN: ${{ secrets.ENVLY_TOKEN }}',
+        '    run: |',
+        '      curl -fsSL \\',
+        '        -H "Authorization: Bearer ${ENVLY_TOKEN}" \\',
+        '        "${ENVLY_API_URL}" > .env',
+    ].join('\n');
 });
 
 const copyFromExisting = computed({
@@ -167,6 +198,14 @@ const closeRegenerateTokenModal = () => {
     confirmingTokenRegeneration.value = false;
     tokenForm.clearErrors();
     tokenForm.reset();
+};
+
+const openUsageExamplesModal = () => {
+    showingUsageExamples.value = true;
+};
+
+const closeUsageExamplesModal = () => {
+    showingUsageExamples.value = false;
 };
 
 const openHistoryDetailsModal = (version: EnvironmentVersion) => {
@@ -322,8 +361,16 @@ const deleteConfirmationLabel = computed(() => {
                     <div class="text-subtitle-1 font-weight-bold mb-2">{{ t('environments.token') }}</div>
                     <v-text-field :model-value="activeEnvironment.access_token" readonly variant="outlined" density="compact" />
                     <div class="text-caption text-medium-emphasis mb-2">{{ t('environments.api_url') }}</div>
-                    <v-textarea :model-value="apiUrl" readonly variant="outlined" rows="3" density="compact" />
+                    <v-text-field :model-value="apiUrl" readonly variant="outlined" density="compact" prepend-inner-icon="mdi-link-variant" />
                     <p class="text-body-2 mb-4">{{ t('projects.api_hint') }}</p>
+
+                    <v-alert type="info" variant="tonal" density="comfortable" class="mb-4">
+                        {{ t('environments.token_security_hint') }}
+                    </v-alert>
+                    <v-btn class="mb-4" variant="tonal" rounded="xl" block prepend-icon="mdi-book-open-variant" @click="openUsageExamplesModal">
+                        {{ t('environments.usage_examples') }}
+                    </v-btn>
+
                     <v-btn class="env-action-btn" variant="flat" rounded="xl" block prepend-icon="mdi-lock-reset" @click="openRegenerateTokenModal">
                         {{ t('environments.regenerate_token') }}
                     </v-btn>
@@ -380,6 +427,42 @@ const deleteConfirmationLabel = computed(() => {
                     </v-btn>
                     <v-btn class="env-action-btn" variant="flat" rounded="lg" :loading="tokenForm.processing" @click="regenerateToken">
                         {{ t('environments.regenerate_token_confirm_action') }}
+                    </v-btn>
+                </div>
+            </div>
+        </Modal>
+
+        <Modal :show="showingUsageExamples" max-width="xl" @close="closeUsageExamplesModal">
+            <div class="pa-6">
+                <div class="ops-kicker mb-2">{{ t('environments.api_url') }}</div>
+                <h2 class="text-h5 font-weight-black mb-2">{{ t('environments.usage_examples') }}</h2>
+                <p class="ops-muted mb-6">{{ t('projects.api_hint') }}</p>
+
+                <v-expansion-panels variant="accordion" elevation="0" class="api-examples">
+                    <v-expansion-panel rounded="lg">
+                        <v-expansion-panel-title>
+                            <v-icon icon="mdi-console-line" class="mr-2" />
+                            {{ t('environments.example_curl') }}
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <pre class="api-example-code">{{ curlExample }}</pre>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+
+                    <v-expansion-panel rounded="lg">
+                        <v-expansion-panel-title>
+                            <v-icon icon="mdi-github" class="mr-2" />
+                            {{ t('environments.example_github_actions') }}
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+                            <pre class="api-example-code">{{ githubActionsExample }}</pre>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+
+                <div class="d-flex justify-end mt-6">
+                    <v-btn variant="text" rounded="lg" @click="closeUsageExamplesModal">
+                        {{ t('profile.cancel') }}
                     </v-btn>
                 </div>
             </div>
@@ -600,6 +683,27 @@ const deleteConfirmationLabel = computed(() => {
     word-break: break-word;
     font-size: 0.85rem;
     line-height: 1.5;
+}
+
+.api-examples :deep(.v-expansion-panel-title) {
+    min-height: 48px;
+    padding: 0.7rem 0.9rem;
+}
+
+.api-examples :deep(.v-expansion-panel-text__wrapper) {
+    padding: 0 0.9rem 0.9rem;
+}
+
+.api-example-code {
+    margin: 0;
+    padding: 0.85rem 0.9rem;
+    border-radius: 0.75rem;
+    background: rgba(15, 143, 114, 0.08);
+    border: 1px solid rgba(15, 143, 114, 0.16);
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: 0.78rem;
+    line-height: 1.45;
 }
 
 @media (min-width: 960px) {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Repositories\ProjectEnvironmentRepository;
 use App\Services\EnvironmentService;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 class EnvironmentFileController extends Controller
@@ -14,8 +15,12 @@ class EnvironmentFileController extends Controller
         private EnvironmentService $service,
     ) {}
 
-    public function __invoke(string $projectIdentifier, string $token): Response
+    public function __invoke(Request $request, string $projectIdentifier): Response
     {
+        $token = $request->bearerToken();
+
+        abort_if(! is_string($token) || $token === '', 404);
+
         $environment = $this->environments->findForApi($projectIdentifier, $token);
 
         abort_if($environment === null, 404);

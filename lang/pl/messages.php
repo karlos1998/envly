@@ -158,7 +158,7 @@ return [
         'create' => 'Utwórz projekt',
         'delete' => 'Usuń projekt',
         'open' => 'Otwórz',
-        'api_hint' => 'Pobierz to środowisko jako plain text z GitHub Actions albo CI.',
+        'api_hint' => 'Pobieraj to środowisko jako plain text przez API z tokenem Bearer.',
     ],
     'env_templates' => [
         'laravel' => [
@@ -197,6 +197,10 @@ return [
         'history' => 'Historia',
         'lines' => 'linii',
         'api_url' => 'URL API',
+        'token_security_hint' => 'Token nie jest częścią URL. Przekazuj go wyłącznie w nagłówku Authorization jako Bearer token.',
+        'usage_examples' => 'Przykłady użycia',
+        'example_curl' => 'curl (lokalnie / CI)',
+        'example_github_actions' => 'GitHub Actions',
         'regenerate_token_confirm_title' => 'Potwierdź wygenerowanie nowego tokena',
         'regenerate_token_confirm_body' => 'To wrażliwa operacja. Podaj aktualne hasło do konta, aby wygenerować nowy token dostępu.',
         'regenerate_token_confirm_action' => 'Wygeneruj token',
