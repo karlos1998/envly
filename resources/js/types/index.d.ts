@@ -66,6 +66,11 @@ export interface Project {
     name: string;
     identifier: string;
     display_name: string;
+    github_repository_id: number | null;
+    github_repository_full_name: string | null;
+    github_workflow_id: string | null;
+    github_workflow_name: string | null;
+    github_deploy_ref: string | null;
     created_at: string | null;
     updated_at: string | null;
     environments: ProjectEnvironment[];

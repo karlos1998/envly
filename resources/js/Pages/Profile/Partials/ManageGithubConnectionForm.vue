@@ -9,14 +9,9 @@ const props = defineProps<{
     githubAccount: SocialAccount | null;
 }>();
 
-const connectForm = useForm({});
 const disconnectForm = useForm({});
 
 const isGithubConnected = (): boolean => Boolean(props.githubAccount);
-
-const connectGithub = (): void => {
-    connectForm.post(route('auth.github.connect'));
-};
 
 const disconnectGithub = (): void => {
     disconnectForm.delete(route('auth.github.disconnect'));
@@ -38,11 +33,10 @@ const disconnectGithub = (): void => {
         <v-btn
             v-if="!isGithubConnected()"
             class="env-action-btn"
+            :href="route('auth.github.connect')"
             variant="flat"
             prepend-icon="mdi-github"
-            :loading="connectForm.processing"
             block
-            @click="connectGithub"
         >
             {{ t('profile.connect_github') }}
         </v-btn>

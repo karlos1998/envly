@@ -20,7 +20,7 @@ class GithubAuthController extends Controller
     public function redirect(): RedirectResponse
     {
         return Socialite::driver('github')
-            ->scopes(['read:user', 'user:email'])
+            ->scopes(['read:user', 'user:email', 'repo', 'workflow'])
             ->redirect();
     }
 

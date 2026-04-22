@@ -20,6 +20,11 @@ class ProjectPresenter
             'name' => $project->name,
             'identifier' => $project->identifier,
             'display_name' => $project->display_name,
+            'github_repository_id' => $project->github_repository_id,
+            'github_repository_full_name' => $project->github_repository_full_name,
+            'github_workflow_id' => $project->github_workflow_id,
+            'github_workflow_name' => $project->github_workflow_name,
+            'github_deploy_ref' => $project->github_deploy_ref,
             'created_at' => $project->created_at?->toISOString(),
             'updated_at' => $project->updated_at?->toISOString(),
             'environments' => $project->environments

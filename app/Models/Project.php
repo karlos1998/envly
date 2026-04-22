@@ -11,7 +11,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-#[Fillable(['user_id', 'name', 'identifier'])]
+#[Fillable([
+    'user_id',
+    'name',
+    'identifier',
+    'github_repository_id',
+    'github_repository_full_name',
+    'github_workflow_id',
+    'github_workflow_name',
+    'github_deploy_ref',
+])]
 class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */

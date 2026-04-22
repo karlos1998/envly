@@ -4,6 +4,7 @@ use App\Models\EnvironmentVersion;
 use App\Models\Project;
 use App\Models\ProjectEnvironment;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 
 it('creates a project with a globally unique identifier and main environment', function () {
@@ -307,4 +308,145 @@ it('includes detailed history entries on the project page', function () {
             ->where('project.environments.0.versions.1.previous_content', "APP_NAME=Previous\n")
             ->where('project.environments.0.versions.1.content', "APP_NAME=Current\nAPP_DEBUG=false\n")
         );
+});
+
+it('includes github connection state on project page when account is not connected', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->get(route('projects.show', $project))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Projects/Show')
+            ->where('github.connected', false)
+        );
+});
+
+it('includes github connection state on project page for connected account', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $user->socialAccounts()->create([
+        'provider' => 'github',
+        'provider_user_id' => '12345',
+        'access_token' => 'github-token',
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('projects.show', $project))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Projects/Show')
+            ->where('github.connected', true)
+        );
+});
+
+it('shows github deploy configuration page', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+
+    $this->actingAs($user)
+        ->get(route('projects.github.edit', $project))
+        ->assertSuccessful()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Projects/GithubDeploy')
+            ->where('github.connected', false)
+        );
+});
+
+it('returns github repositories from api endpoint', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $user->socialAccounts()->create([
+        'provider' => 'github',
+        'provider_user_id' => '12345',
+        'access_token' => 'github-token',
+    ]);
+
+    Http::fake([
+        'https://api.github.com/user/repos*' => Http::response([
+            [
+                'id' => 1001,
+                'name' => 'envly-app',
+                'full_name' => 'acme/envly-app',
+                'default_branch' => 'main',
+                'private' => true,
+                'html_url' => 'https://github.com/acme/envly-app',
+            ],
+        ], 200),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('projects.github.repositories', $project))
+        ->assertSuccessful()
+        ->assertJsonPath('repositories.0.full_name', 'acme/envly-app');
+});
+
+it('stores github deployment configuration for a project', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $user->socialAccounts()->create([
+        'provider' => 'github',
+        'provider_user_id' => '12345',
+        'access_token' => 'github-token',
+    ]);
+
+    Http::fake([
+        'https://api.github.com/repos/acme/envly-app' => Http::response([
+            'id' => 1001,
+            'name' => 'envly-app',
+            'full_name' => 'acme/envly-app',
+            'default_branch' => 'main',
+            'private' => true,
+            'html_url' => 'https://github.com/acme/envly-app',
+        ], 200),
+        'https://api.github.com/repos/acme/envly-app/actions/workflows/8899' => Http::response([
+            'id' => 8899,
+            'name' => 'Deploy production',
+            'path' => '.github/workflows/deploy.yml',
+            'state' => 'active',
+        ], 200),
+    ]);
+
+    $this->actingAs($user)
+        ->put(route('projects.github.update', $project), [
+            'repository_full_name' => 'acme/envly-app',
+            'workflow_id' => '8899',
+            'deploy_ref' => 'main',
+        ])
+        ->assertRedirect();
+
+    expect($project->refresh()->github_repository_id)->toBe(1001)
+        ->and($project->github_repository_full_name)->toBe('acme/envly-app')
+        ->and($project->github_workflow_id)->toBe('8899')
+        ->and($project->github_workflow_name)->toBe('Deploy production')
+        ->and($project->github_deploy_ref)->toBe('main');
+});
+
+it('dispatches selected github workflow for configured project deployment', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create([
+        'github_repository_full_name' => 'acme/envly-app',
+        'github_workflow_id' => '8899',
+        'github_deploy_ref' => 'main',
+    ]);
+    $user->socialAccounts()->create([
+        'provider' => 'github',
+        'provider_user_id' => '12345',
+        'access_token' => 'github-token',
+    ]);
+
+    Http::fake([
+        'https://api.github.com/repos/acme/envly-app/actions/workflows/8899/dispatches' => Http::response('', 204),
+    ]);
+
+    $this->actingAs($user)
+        ->post(route('projects.github.deploy', $project))
+        ->assertRedirect();
+
+    Http::assertSent(function ($request): bool {
+        return $request->url() === 'https://api.github.com/repos/acme/envly-app/actions/workflows/8899/dispatches'
+            && $request['ref'] === 'main'
+            && $request->method() === 'POST';
+    });
 });

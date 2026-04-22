@@ -44,7 +44,8 @@ Route::middleware('guest')->group(function () {
 Route::get('auth/github/callback', [GithubAuthController::class, 'callback'])->name('auth.github.callback');
 
 Route::middleware('auth')->group(function () {
-    Route::post('auth/github/connect', [GithubAuthController::class, 'connect'])->name('auth.github.connect');
+    Route::get('auth/github/connect', [GithubAuthController::class, 'connect'])->name('auth.github.connect');
+    Route::post('auth/github/connect', [GithubAuthController::class, 'connect'])->name('auth.github.connect.post');
     Route::delete('auth/github/disconnect', [GithubAuthController::class, 'disconnect'])->name('auth.github.disconnect');
     Route::post('webauthn/register/options', [WebAuthnRegisterController::class, 'options'])->name('webauthn.register.options');
     Route::post('webauthn/register', [WebAuthnRegisterController::class, 'register'])->name('webauthn.register');

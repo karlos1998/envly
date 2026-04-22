@@ -8,7 +8,12 @@ import type { EnvironmentVersion, Project, ProjectEnvironment } from '@/types';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { computed, nextTick, ref, watch } from 'vue';
 
-const props = defineProps<{ project: Project }>();
+const props = defineProps<{
+    project: Project;
+    github: {
+        connected: boolean;
+    };
+}>();
 const { t } = useTranslations();
 
 const selectedEnvironmentId = ref<number>(props.project.environments[0]?.id ?? 0);
@@ -44,6 +49,7 @@ const environmentForm = useForm<{
 });
 const tokenForm = useForm({ current_password: '' });
 const deleteEnvironmentForm = useForm({ name: '' });
+const deployForm = useForm({});
 const creatingEnvironment = ref(false);
 const confirmingTokenRegeneration = ref(false);
 const confirmingEnvironmentDeletion = ref(false);
@@ -53,6 +59,9 @@ const selectedEnvironmentForDeletion = ref<ProjectEnvironment | null>(null);
 const tokenPasswordInput = ref<{ focus: () => void } | null>(null);
 const environmentNameInput = ref<{ focus: () => void } | null>(null);
 const deleteEnvironmentNameInput = ref<{ focus: () => void } | null>(null);
+const canRunGithubDeploy = computed(
+    () => props.github.connected && !!props.project.github_repository_full_name && !!props.project.github_workflow_id,
+);
 
 const apiUrl = computed(() => {
     if (!activeEnvironment.value) {
@@ -208,6 +217,12 @@ const closeUsageExamplesModal = () => {
     showingUsageExamples.value = false;
 };
 
+const runGithubDeploy = () => {
+    deployForm.post(route('projects.github.deploy', props.project.identifier), {
+        preserveScroll: true,
+    });
+};
+
 const openHistoryDetailsModal = (version: EnvironmentVersion) => {
     selectedHistoryVersion.value = version;
 };
@@ -257,6 +272,68 @@ const deleteConfirmationLabel = computed(() => {
 <template>
     <AuthenticatedLayout>
         <Head :title="project.name" />
+
+        <v-card class="env-card pa-5 mb-5" rounded="xl">
+            <div class="ops-kicker mb-2">GITHUB / DEPLOY</div>
+            <h2 class="text-h5 font-weight-black mb-2">{{ t('projects.github_section_title') }}</h2>
+            <p class="ops-muted mb-5">{{ t('projects.github_section_hint') }}</p>
+
+            <v-alert v-if="!github.connected" type="info" variant="tonal" class="mb-4">
+                {{ t('projects.github_connect_hint') }}
+            </v-alert>
+
+            <v-alert v-else-if="!project.github_repository_full_name || !project.github_workflow_id" type="warning" variant="tonal" class="mb-4">
+                {{ t('projects.github_not_configured_hint') }}
+            </v-alert>
+
+            <div v-else class="d-flex flex-wrap ga-3 mb-4">
+                <v-chip color="secondary" variant="tonal">
+                    {{ project.github_repository_full_name }}
+                </v-chip>
+                <v-chip color="primary" variant="tonal">
+                    {{ t('projects.github_current_workflow') }}: {{ project.github_workflow_name }}
+                </v-chip>
+                <v-chip v-if="project.github_deploy_ref" variant="outlined">
+                    ref: {{ project.github_deploy_ref }}
+                </v-chip>
+            </div>
+
+            <div class="d-flex flex-wrap ga-3">
+                <v-btn
+                    v-if="!github.connected"
+                    :href="route('profile.edit')"
+                    class="env-action-btn"
+                    variant="flat"
+                    rounded="lg"
+                    prepend-icon="mdi-account-cog-outline"
+                >
+                    {{ t('projects.github_open_profile') }}
+                </v-btn>
+
+                <v-btn
+                    v-else
+                    :href="route('projects.github.edit', project.identifier)"
+                    class="env-action-btn"
+                    variant="flat"
+                    rounded="lg"
+                    prepend-icon="mdi-cog-outline"
+                >
+                    {{ t('projects.github_open_configuration') }}
+                </v-btn>
+
+                <v-btn
+                    class="env-action-btn"
+                    variant="flat"
+                    rounded="lg"
+                    prepend-icon="mdi-rocket-launch-outline"
+                    :loading="deployForm.processing"
+                    :disabled="!canRunGithubDeploy"
+                    @click="runGithubDeploy"
+                >
+                    {{ t('projects.github_run_deploy') }}
+                </v-btn>
+            </div>
+        </v-card>
 
         <v-row>
             <v-col cols="12" lg="3">

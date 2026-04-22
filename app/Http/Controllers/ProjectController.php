@@ -50,6 +50,9 @@ class ProjectController extends Controller
 
         return Inertia::render('Projects/Show', [
             'project' => $this->presenter->project($project),
+            'github' => [
+                'connected' => $project->user->githubAccount()->exists(),
+            ],
         ]);
     }
 
