@@ -37,7 +37,8 @@ const disconnectGithub = (): void => {
 
         <v-btn
             v-if="!isGithubConnected()"
-            color="secondary"
+            class="env-action-btn"
+            variant="flat"
             prepend-icon="mdi-github"
             :loading="connectForm.processing"
             block

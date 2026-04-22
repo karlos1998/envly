@@ -55,7 +55,7 @@ const removePasskey = (credentialId: string): void => {
             {{ feedbackError }}
         </v-alert>
 
-        <v-btn color="primary" prepend-icon="mdi-fingerprint" :loading="isCreating" class="mb-5" block @click="createPasskey">
+        <v-btn class="env-action-btn mb-5" variant="flat" prepend-icon="mdi-fingerprint" :loading="isCreating" block @click="createPasskey">
             {{ t('profile.add_passkey') }}
         </v-btn>
 
