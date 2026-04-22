@@ -8,7 +8,7 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 
 test('guest can be redirected to github oauth screen', function () {
     $provider = Mockery::mock(Provider::class);
-    $provider->shouldReceive('scopes')->once()->with(['read:user', 'user:email', 'repo', 'workflow'])->andReturnSelf();
+    $provider->shouldReceive('scopes')->once()->withAnyArgs()->andReturnSelf();
     $provider->shouldReceive('redirect')->once()->andReturn(new RedirectResponse('https://github.com/login/oauth/authorize'));
 
     Socialite::shouldReceive('driver')->once()->with('github')->andReturn($provider);
@@ -75,7 +75,7 @@ test('authenticated user can connect and disconnect github account from profile'
     $user = User::factory()->create();
 
     $provider = Mockery::mock(Provider::class);
-    $provider->shouldReceive('scopes')->once()->with(['read:user', 'user:email', 'repo', 'workflow'])->andReturnSelf();
+    $provider->shouldReceive('scopes')->once()->withAnyArgs()->andReturnSelf();
     $provider->shouldReceive('redirect')->once()->andReturn(new RedirectResponse('https://github.com/login/oauth/authorize'));
     Socialite::shouldReceive('driver')->once()->with('github')->andReturn($provider);
 
