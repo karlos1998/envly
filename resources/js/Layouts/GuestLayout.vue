@@ -26,7 +26,7 @@ const canLogin = computed(() => !page.props.auth.user);
                             <v-btn :href="route('login')" variant="text" color="primary">
                                 {{ t('nav.login') }}
                             </v-btn>
-                            <v-btn :href="route('register')" color="primary" variant="flat">
+                            <v-btn :href="route('register')" class="env-action-btn" color="primary" variant="flat">
                                 {{ t('nav.register') }}
                             </v-btn>
                         </template>
