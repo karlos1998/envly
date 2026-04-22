@@ -98,7 +98,7 @@ Passkeys (WebAuthn):
 Jeśli chcesz używać deploya i aktualizacji `ENVLY_TOKEN` w repo, skonfiguruj GitHub App.
 
 Szczegóły i gotowe presety uprawnień:
-- [GITHUB_APP_PERMISSIONS.md](/Users/karolsojka/PRACA/envly/GITHUB_APP_PERMISSIONS.md)
+- [GITHUB_APP_PERMISSIONS.md](./GITHUB_APP_PERMISSIONS.md)
 
 Tworzenie GitHub App:
 - [https://github.com/settings/apps](https://github.com/settings/apps)
@@ -231,7 +231,7 @@ Passkeys (WebAuthn):
 If you want deploy and `ENVLY_TOKEN` secret sync, configure a GitHub App.
 
 Details and permission presets:
-- [GITHUB_APP_PERMISSIONS.md](/Users/karolsojka/PRACA/envly/GITHUB_APP_PERMISSIONS.md)
+- [GITHUB_APP_PERMISSIONS.md](./GITHUB_APP_PERMISSIONS.md)
 
 Create GitHub App:
 - [https://github.com/settings/apps](https://github.com/settings/apps)
