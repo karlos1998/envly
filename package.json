@@ -26,6 +26,7 @@
         "@codemirror/search": "^6.6.0",
         "@codemirror/state": "^6.6.0",
         "@codemirror/view": "^6.41.1",
+        "@laragear/webpass": "^2.1.2",
         "@mdi/font": "^7.4.47",
         "@vueuse/core": "^14.2.1",
         "vuetify": "^4.0.5"

@@ -18,9 +18,33 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $user = $request->user();
+
         return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
+            'githubAccount' => $user->githubAccount()->first()?->only([
+                'id',
+                'provider',
+                'provider_user_id',
+                'username',
+                'name',
+                'email',
+                'avatar_url',
+                'connected_at',
+            ]),
+            'passkeys' => $user->webAuthnCredentials()
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(fn ($credential): array => [
+                    'id' => $credential->id,
+                    'alias' => $credential->alias,
+                    'origin' => $credential->origin,
+                    'created_at' => $credential->created_at?->toISOString(),
+                    'updated_at' => $credential->updated_at?->toISOString(),
+                ])
+                ->values()
+                ->all(),
         ]);
     }
 

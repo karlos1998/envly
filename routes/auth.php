@@ -4,11 +4,14 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\GithubAuthController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\WebAuthn\WebAuthnLoginController;
+use App\Http\Controllers\WebAuthn\WebAuthnRegisterController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -21,6 +24,9 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('auth/github/redirect', [GithubAuthController::class, 'redirect'])->name('auth.github.redirect');
+    Route::post('webauthn/login/options', [WebAuthnLoginController::class, 'options'])->name('webauthn.login.options');
+    Route::post('webauthn/login', [WebAuthnLoginController::class, 'login'])->name('webauthn.login');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
@@ -35,7 +41,15 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
+Route::get('auth/github/callback', [GithubAuthController::class, 'callback'])->name('auth.github.callback');
+
 Route::middleware('auth')->group(function () {
+    Route::post('auth/github/connect', [GithubAuthController::class, 'connect'])->name('auth.github.connect');
+    Route::delete('auth/github/disconnect', [GithubAuthController::class, 'disconnect'])->name('auth.github.disconnect');
+    Route::post('webauthn/register/options', [WebAuthnRegisterController::class, 'options'])->name('webauthn.register.options');
+    Route::post('webauthn/register', [WebAuthnRegisterController::class, 'register'])->name('webauthn.register');
+    Route::delete('webauthn/credentials/{credentialId}', [WebAuthnRegisterController::class, 'destroy'])->name('webauthn.credentials.destroy');
+
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 

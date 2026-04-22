@@ -6,6 +6,25 @@ export interface User {
     email_verified_at?: string;
 }
 
+export interface SocialAccount {
+    id: number;
+    provider: string;
+    provider_user_id: string;
+    username: string | null;
+    name: string | null;
+    email: string | null;
+    avatar_url: string | null;
+    connected_at: string | null;
+}
+
+export interface PasskeyCredential {
+    id: string;
+    alias: string | null;
+    origin: string;
+    created_at: string | null;
+    updated_at: string | null;
+}
+
 export interface LocaleOption {
     value: 'en' | 'pl';
     label: string;

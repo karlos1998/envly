@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import type { PasskeyCredential, SocialAccount } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
+import ManageGithubConnectionForm from './Partials/ManageGithubConnectionForm.vue';
+import ManagePasskeysForm from './Partials/ManagePasskeysForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { useTranslations } from '@/composables/useTranslations';
 
 defineProps<{
     mustVerifyEmail?: boolean;
+    githubAccount: SocialAccount | null;
+    passkeys: PasskeyCredential[];
     status?: string;
 }>();
 
@@ -46,6 +51,18 @@ const { t } = useTranslations();
                 <v-col cols="12" lg="6">
                     <v-card class="ops-card profile-card pa-6" rounded="xl">
                         <UpdatePasswordForm />
+                    </v-card>
+                </v-col>
+
+                <v-col cols="12" lg="6">
+                    <v-card class="ops-card profile-card pa-6" rounded="xl">
+                        <ManagePasskeysForm :passkeys="passkeys" />
+                    </v-card>
+                </v-col>
+
+                <v-col cols="12" lg="6">
+                    <v-card class="ops-card profile-card pa-6" rounded="xl">
+                        <ManageGithubConnectionForm :github-account="githubAccount" />
                     </v-card>
                 </v-col>
 

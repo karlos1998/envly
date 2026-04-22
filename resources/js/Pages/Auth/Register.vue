@@ -45,6 +45,11 @@ const submit = () => {
             <v-btn type="submit" color="primary" size="large" rounded="xl" :loading="form.processing" block>
                 {{ t('auth.register') }}
             </v-btn>
+
+            <v-btn :href="route('auth.github.redirect')" color="secondary" prepend-icon="mdi-github" variant="outlined" block>
+                {{ t('auth.register_with_github') }}
+            </v-btn>
+
             <Link :href="route('login')" class="text-center text-primary">
                 {{ t('auth.already_registered') }}
             </Link>
