@@ -1,11 +1,328 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+:root {
+    --envly-background: #071017;
+    --envly-background-mid: #0b141d;
+    --envly-background-end: #09121a;
+    --envly-grid: rgba(89, 243, 183, 0.035);
+    --envly-glow-primary: rgba(89, 243, 183, 0.16);
+    --envly-glow-secondary: rgba(125, 211, 252, 0.12);
+    --envly-text: #e6edf3;
+    --envly-muted: rgba(230, 237, 243, 0.62);
+    --envly-primary: #59f3b7;
+    --envly-primary-hover: #7fffd0;
+    --envly-button-text: #071017;
+    --envly-button-disabled-bg: rgba(89, 243, 183, 0.16);
+    --envly-button-disabled-text: rgba(230, 237, 243, 0.42);
+    --envly-card-start: rgba(13, 24, 33, 0.94);
+    --envly-card-end: rgba(8, 18, 27, 0.94);
+    --envly-card-border: rgba(89, 243, 183, 0.14);
+    --envly-card-shadow: 0 24px 90px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    --envly-field-bg: #09141d;
+    --envly-field-border: rgba(148, 163, 184, 0.22);
+    --envly-editor-bg: #050b11;
+    --envly-editor-gutter: #071017;
+    color: var(--envly-text);
+    background: var(--envly-background);
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, ui-monospace, monospace;
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+[data-color-scheme='light'] {
+    --envly-background: #f4f7f4;
+    --envly-background-mid: #e9f1eb;
+    --envly-background-end: #dde8e1;
+    --envly-grid: rgba(15, 143, 114, 0.085);
+    --envly-glow-primary: rgba(15, 143, 114, 0.16);
+    --envly-glow-secondary: rgba(9, 111, 159, 0.12);
+    --envly-text: #10202a;
+    --envly-muted: rgba(16, 32, 42, 0.64);
+    --envly-primary: #0f8f72;
+    --envly-primary-hover: #0a705a;
+    --envly-button-text: #ffffff;
+    --envly-button-disabled-bg: rgba(15, 143, 114, 0.14);
+    --envly-button-disabled-text: rgba(16, 32, 42, 0.42);
+    --envly-card-start: rgba(255, 255, 255, 0.96);
+    --envly-card-end: rgba(242, 247, 243, 0.96);
+    --envly-card-border: rgba(15, 143, 114, 0.18);
+    --envly-card-shadow: 0 24px 80px rgba(16, 32, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --envly-field-bg: #ffffff;
+    --envly-field-border: rgba(16, 32, 42, 0.16);
+    --envly-editor-bg: #0a1117;
+    --envly-editor-gutter: #101820;
+}
+
+html {
+    background: var(--envly-background);
+}
+
+body {
+    min-height: 100vh;
+    background:
+        linear-gradient(var(--envly-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--envly-grid) 1px, transparent 1px),
+        radial-gradient(circle at 18% 12%, var(--envly-glow-primary), transparent 28rem),
+        radial-gradient(circle at 82% 18%, var(--envly-glow-secondary), transparent 26rem),
+        linear-gradient(135deg, var(--envly-background) 0%, var(--envly-background-mid) 54%, var(--envly-background-end) 100%);
+    background-size: 42px 42px, 42px 42px, auto, auto, auto;
+}
+
+.v-application {
+    background: transparent !important;
+    color: var(--envly-text) !important;
+}
+
+.env-card,
+.ops-card {
+    background: linear-gradient(180deg, var(--envly-card-start), var(--envly-card-end)) !important;
+    border: 1px solid var(--envly-card-border) !important;
+    box-shadow: var(--envly-card-shadow) !important;
+}
+
+.env-editor .cm-editor {
+    min-height: 420px;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--envly-primary) 28%, transparent);
+    background: var(--envly-editor-bg);
+    color: #e6edf3;
+}
+
+.env-editor .cm-gutters {
+    background: var(--envly-editor-gutter);
+    color: var(--envly-primary);
+    border-right: 1px solid color-mix(in srgb, var(--envly-primary) 16%, transparent);
+}
+
+.env-editor .cm-content {
+    font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+    font-size: 14px;
+    caret-color: var(--envly-primary);
+}
+
+.env-editor .env-comment {
+    color: color-mix(in srgb, var(--envly-text) 42%, transparent);
+    font-style: italic;
+}
+
+.env-editor .cm-focused {
+    outline: 2px solid color-mix(in srgb, var(--envly-primary) 30%, transparent);
+    outline-offset: 0;
+}
+
+.env-editor .cm-cursor,
+.env-editor .cm-dropCursor {
+    border-left-color: var(--envly-primary) !important;
+    border-left-width: 2px;
+}
+
+.env-editor .cm-selectionBackground,
+.env-editor .cm-focused .cm-selectionBackground,
+.env-editor .cm-content ::selection {
+    background: color-mix(in srgb, var(--envly-primary) 26%, transparent) !important;
+}
+
+.auth-card .v-field,
+.env-card .v-field,
+.ops-card .v-field {
+    min-height: 58px;
+    background: var(--envly-field-bg);
+    border: 1px solid var(--envly-field-border);
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.auth-card .v-field:hover,
+.env-card .v-field:hover,
+.ops-card .v-field:hover {
+    border-color: color-mix(in srgb, var(--envly-primary) 44%, transparent);
+}
+
+.auth-card .v-field--focused,
+.env-card .v-field--focused,
+.ops-card .v-field--focused {
+    border-color: var(--envly-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--envly-primary) 12%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.auth-card .v-field__outline,
+.env-card .v-field__outline,
+.ops-card .v-field__outline {
+    --v-field-border-width: 0;
+    --v-field-border-opacity: 0;
+}
+
+.auth-card .v-field__outline__start,
+.auth-card .v-field__outline__end,
+.auth-card .v-field__outline__notch::before,
+.auth-card .v-field__outline__notch::after,
+.env-card .v-field__outline__start,
+.env-card .v-field__outline__end,
+.env-card .v-field__outline__notch::before,
+.env-card .v-field__outline__notch::after,
+.ops-card .v-field__outline__start,
+.ops-card .v-field__outline__end,
+.ops-card .v-field__outline__notch::before,
+.ops-card .v-field__outline__notch::after {
+    border-color: transparent !important;
+}
+
+.auth-card .v-field--variant-outlined .v-label.v-field-label--floating,
+.env-card .v-field--variant-outlined .v-label.v-field-label--floating,
+.ops-card .v-field--variant-outlined .v-label.v-field-label--floating {
+    color: var(--envly-primary);
+    background: var(--envly-field-bg);
+    border-radius: 999px;
+    padding-inline: 6px;
+    opacity: 1;
+}
+
+.auth-card .v-field__input,
+.env-card .v-field__input,
+.ops-card .v-field__input {
+    min-height: 56px;
+    padding-inline: 18px !important;
+}
+
+.auth-card .v-field--prepended .v-field__input,
+.env-card .v-field--prepended .v-field__input,
+.ops-card .v-field--prepended .v-field__input {
+    padding-inline-start: 0 !important;
+}
+
+.auth-card .v-field__prepend-inner,
+.env-card .v-field__prepend-inner,
+.ops-card .v-field__prepend-inner {
+    align-items: center;
+    padding-inline-start: 18px;
+    padding-inline-end: 10px;
+}
+
+.auth-card .v-select__selection,
+.env-card .v-select__selection,
+.ops-card .v-select__selection {
+    margin-inline-start: 0;
+}
+
+.auth-card .v-input__details,
+.env-card .v-input__details,
+.ops-card .v-input__details {
+    min-height: 10px;
+    padding-inline: 8px;
+}
+
+.auth-card .v-btn[type='submit'],
+.env-card .v-btn[type='submit'],
+.ops-card .v-btn[type='submit'] {
+    min-height: 54px;
+    background: var(--envly-primary) !important;
+    color: var(--envly-button-text) !important;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--envly-primary) 22%, transparent);
+}
+
+.auth-card .v-btn.bg-primary,
+.env-card .v-btn.bg-primary,
+.ops-card .v-btn.bg-primary,
+.auth-card .v-btn.bg-secondary,
+.env-card .v-btn.bg-secondary,
+.ops-card .v-btn.bg-secondary {
+    color: var(--envly-button-text) !important;
+}
+
+.env-action-btn.v-btn {
+    background: var(--envly-primary) !important;
+    color: var(--envly-button-text) !important;
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--envly-primary) 22%, transparent) !important;
+    font-weight: 900;
+}
+
+.env-action-btn.v-btn:hover {
+    background: var(--envly-primary-hover) !important;
+}
+
+.env-action-btn.v-btn .v-icon,
+.env-action-btn.v-btn .v-btn__content,
+.env-action-btn.v-btn .v-btn__prepend {
+    color: var(--envly-button-text) !important;
+}
+
+.auth-card .v-btn.bg-primary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.env-card .v-btn.bg-primary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.ops-card .v-btn.bg-primary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.auth-card .v-btn.bg-secondary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.env-card .v-btn.bg-secondary:not(.v-btn--disabled):not(.v-btn--variant-text),
+.ops-card .v-btn.bg-secondary:not(.v-btn--disabled):not(.v-btn--variant-text) {
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--envly-primary) 22%, transparent);
+}
+
+.auth-card .v-btn:not(.v-btn--icon),
+.env-card .v-btn:not(.v-btn--icon),
+.ops-card .v-btn:not(.v-btn--icon) {
+    min-width: 82px;
+    padding-inline: 18px !important;
+}
+
+.auth-card .v-btn__content,
+.env-card .v-btn__content,
+.ops-card .v-btn__content {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.auth-card .v-btn__prepend,
+.env-card .v-btn__prepend,
+.ops-card .v-btn__prepend {
+    margin-inline: 0;
+}
+
+.auth-card .v-btn[type='submit']:hover,
+.env-card .v-btn[type='submit']:hover,
+.ops-card .v-btn[type='submit']:hover {
+    background: var(--envly-primary-hover) !important;
+}
+
+.auth-card .v-btn.v-btn--disabled,
+.env-card .v-btn.v-btn--disabled,
+.ops-card .v-btn.v-btn--disabled {
+    opacity: 1 !important;
+    background: var(--envly-button-disabled-bg) !important;
+    color: var(--envly-button-disabled-text) !important;
+    box-shadow: none !important;
+}
+
+.auth-card .v-btn.v-btn--disabled .v-btn__overlay,
+.env-card .v-btn.v-btn--disabled .v-btn__overlay,
+.ops-card .v-btn.v-btn--disabled .v-btn__overlay {
+    opacity: 0 !important;
+}
+
+.auth-card .v-btn.v-btn--disabled .v-btn__content,
+.env-card .v-btn.v-btn--disabled .v-btn__content,
+.ops-card .v-btn.v-btn--disabled .v-btn__content,
+.auth-card .v-btn.v-btn--disabled .v-btn__prepend,
+.env-card .v-btn.v-btn--disabled .v-btn__prepend,
+.ops-card .v-btn.v-btn--disabled .v-btn__prepend {
+    opacity: 1 !important;
+}
+
+.auth-card .v-selection-control,
+.env-card .v-selection-control,
+.ops-card .v-selection-control {
+    color: var(--envly-muted);
+}
+
+.ops-kicker {
+    color: var(--envly-primary);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.ops-muted {
+    color: var(--envly-muted);
 }
